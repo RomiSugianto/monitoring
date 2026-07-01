@@ -1,0 +1,25 @@
+# mimir.yaml
+target: all
+
+multitenancy_enabled: false
+
+# Configure the HTTP server
+server:
+  http_listen_port: 9009
+
+# Store metrics locally on disk instead of cloud S3/GCS
+blocks_storage:
+  backend: filesystem
+  filesystem:
+    dir: /tmp/mimir/data/blocks
+    
+# Use local disk for other required Mimir components
+alertmanager_storage:
+  backend: filesystem
+  filesystem:
+    dir: /tmp/mimir/data/alertmanager
+
+ruler_storage:
+  backend: filesystem
+  filesystem:
+    dir: /tmp/mimir/data/ruler

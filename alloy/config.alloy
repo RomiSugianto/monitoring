@@ -1,0 +1,49 @@
+livedebugging {
+  enabled = true
+}
+
+local.file_match "logwriter" {
+  path_targets = [{"__path__" = "/var/log/logwriter/*.log"}]
+}
+
+loki.source.file "log_scrape" {
+  targets    = local.file_match.logwriter.targets
+  forward_to = [loki.process.json_processor.receiver]
+  tail_from_end = true
+
+}
+
+loki.process "json_processor" {
+  stage.json {
+    expressions = {
+      timestamp  = "timestamp",
+      service = "service",
+      status   = "status",
+      duration = "duration",
+      http_code = "http_code",
+      message = "message",
+    }
+  }
+  stage.timestamp {
+    source = "timestamp"
+    format = "RFC3339"
+  }
+  stage.labels {
+    values = {
+      service = "service",
+      status = "status",
+    }
+  }
+  stage.static_labels {
+    values = {
+      "job" = "logwriter",
+    }
+  }
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

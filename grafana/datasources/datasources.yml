@@ -1,0 +1,51 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: Prometheus
+  - name: grafanacloud-dashingparrot1503-prom
+  - name: Loki
+  - name: Elasticsearch
+  - name: Mimir
+
+datasources:
+
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      prometheusType: Prometheus
+      prometheusVersion: 2.50.1
+      httpMethod: POST
+      manageAlerts: true
+
+  # - name: Loki
+  #   type: loki
+  #   uid: loki
+  #   access: proxy
+  #   url: http://loki:3100
+  #   editable: false
+
+  # - name: Elasticsearch
+  #   type: elasticsearch
+  #   uid: elasticsearch
+  #   access: proxy
+  #   url: http://elasticsearch:9200
+  #   editable: false
+  #   jsonData:
+  #     timeField: "@timestamp"
+
+  # - name: Mimir
+  #   type: prometheus
+  #   uid: mimir
+  #   access: proxy
+  #   url: http://mimir:9009/prometheus
+  #   editable: false
+  #   jsonData:
+  #     prometheusType: "Mimir"
+  #     prometheusVersion: "2.9.1"
+  #     httpMethod: POST
+  #     manageAlerts: true
