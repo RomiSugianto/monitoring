@@ -1,0 +1,798 @@
+{
+	"id": null,
+	"uid": "slo-dashboard-notification",
+	"title": "SLO notification",
+	"description": "SLO dashboard notification",
+	"tags": ["SLO"],
+	"folderUid": "slo",
+	"overwrite": true,
+	"timezone": "browser",
+	"schemaVersion": 36,
+	"version": 0,
+	"refresh": "30s",
+	"time": {
+		"from": "now-1h",
+		"to": "now"
+	},
+	"panels": [
+		{
+			"id": 2,
+			"type": "text",
+			"title": "",
+			"gridPos": { "h": 4, "w": 9, "x": 0, "y": 0 },
+			"transparent": true,
+			"options": { "content": "# notification SLO\n", "mode": "markdown" }
+		},
+		{
+			"id": 3,
+			"type": "stat",
+			"title": "",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 2, "w": 5, "x": 9, "y": 0 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"mappings": [
+						{
+							"options": {
+								"from": 1e-10,
+								"result": { "text": "FIRING" },
+								"to": 1
+							},
+							"type": "range"
+						},
+						{
+							"options": { "from": -1, "result": { "text": "OK" }, "to": 0 },
+							"type": "range"
+						}
+					],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "green", "value": null },
+							{ "color": "orange", "value": 1 }
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "background",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "vertical",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "value_and_name",
+				"wideLayout": true
+			},
+			"links": [
+				{
+					"title": "View alert rule",
+					"type": "link",
+					"targetBlank": true,
+					"url": "/alerting/list?queryString=grafana_slo_severity%3Dcritical%2Cslo_name%3Dnotification"
+				}
+			],
+			"targets": [
+				{
+					"refId": "A",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "max((count(GRAFANA_ALERTS{slo_name=\"notification\", grafana_slo_severity=\"critical\", alertstate=\"firing\"})) OR on() vector(0))",
+					"instant": true,
+					"range": false,
+					"legendFormat": "Critical alert"
+				}
+			]
+		},
+		{
+			"id": 4,
+			"type": "stat",
+			"title": "",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 2, "w": 5, "x": 9, "y": 2 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"mappings": [
+						{
+							"options": {
+								"from": 1e-10,
+								"result": { "text": "FIRING" },
+								"to": 1
+							},
+							"type": "range"
+						},
+						{
+							"options": { "from": -1, "result": { "text": "OK" }, "to": 0 },
+							"type": "range"
+						}
+					],
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "green", "value": null },
+							{ "color": "orange", "value": 1 }
+						]
+					},
+					"unit": "short"
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "background",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "vertical",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "value_and_name",
+				"wideLayout": true
+			},
+			"links": [
+				{
+					"title": "View alert rule",
+					"type": "link",
+					"targetBlank": true,
+					"url": "/alerting/list?queryString=grafana_slo_severity%3Dwarning%2Cslo_name%3Dnotification"
+				}
+			],
+			"targets": [
+				{
+					"refId": "A",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "max((count(GRAFANA_ALERTS{slo_name=\"notification\", grafana_slo_severity=\"warning\", alertstate=\"firing\"})) OR on() vector(0))",
+					"instant": true,
+					"range": false,
+					"legendFormat": "Warning alert"
+				}
+			]
+		},
+		{
+			"id": 5,
+			"type": "stat",
+			"title": "Time Window",
+			"description": "The time window over which the service level objective is being measured over",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 4, "w": 5, "x": 14, "y": 0 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [{ "color": "super-light-blue", "value": null }]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "/.*/",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"transformations": [
+				{ "id": "labelsToFields", "options": { "mode": "rows" } },
+				{
+					"id": "organize",
+					"options": {
+						"excludeByName": { "label": true },
+						"indexByName": {},
+						"renameByName": { "label": "time_period", "value": "Time Window" }
+					}
+				}
+			],
+			"targets": [
+				{
+					"refId": "time_window",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "label_replace(vector(1), \"time_period\", \"30d\", \"\", \"\")",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				}
+			]
+		},
+		{
+			"id": 6,
+			"type": "stat",
+			"title": "SLO",
+			"description": "The SLO's Objective value. Always between 0 and 100%",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 4, "w": 5, "x": 19, "y": 0 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"decimals": 2,
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [{ "color": "super-light-blue", "value": null }]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "value",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"refId": "A",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "vector(0.9995)",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				}
+			]
+		},
+		{
+			"id": 1,
+			"type": "timeseries",
+			"title": "SLI",
+			"description": "Service level indicator",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 19, "x": 0, "y": 8 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"custom": {
+						"drawStyle": "line",
+						"lineWidth": 2,
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"axisSoftMax": 0.05,
+						"lineInterpolation": "linear",
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": { "group": "A", "mode": "none" },
+						"thresholdsStyle": { "mode": "off" }
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "red", "value": null },
+							{ "color": "green", "value": 0.9995 }
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": { "mode": "single", "sort": "none" }
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:])), 1)",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "computed_before_creation_time",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "((sum(rate(sli_logwriter_1m{service=\"notification\",status=\"success\"}[$__rate_interval] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m))) / sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m))) AND timestamp(sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m))) < 1782727587",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				}
+			]
+		},
+		{
+			"id": 7,
+			"type": "stat",
+			"title": "30d SLI",
+			"description": "Service level indicator's value over the last 30d",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 5, "x": 19, "y": 8 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "red", "value": null },
+							{ "color": "green", "value": 0.9995 }
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "SLI value",
+						"mode": "reduceRow",
+						"reduce": { "reducer": "mean" },
+						"replaceFields": true
+					}
+				}
+			],
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(\nsum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m])), 1)",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			]
+		},
+		{
+			"id": 8,
+			"type": "timeseries",
+			"title": "Error Budget Burndown",
+			"description": "The error budget burndown in the selected time",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 19, "x": 0, "y": 15 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"custom": {
+						"drawStyle": "line",
+						"lineWidth": 1,
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"axisSoftMax": 1,
+						"axisSoftMin": 0,
+						"lineInterpolation": "linear",
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": { "group": "A", "mode": "none" },
+						"thresholdsStyle": { "mode": "off" }
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "red", "value": null },
+							{ "color": "yellow", "value": 0 },
+							{ "color": "green", "value": 0.2 }
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": { "mode": "single", "sort": "none" }
+			},
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "cumulativeFailures",
+						"cumulative": { "field": "failureEventsInRange", "reducer": "sum" },
+						"mode": "cumulativeFunctions",
+						"reduce": { "reducer": "sum" }
+					}
+				},
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "totalRemaining",
+						"binary": {
+							"left": {
+								"matcher": { "id": "byName", "options": "totalEvents" }
+							},
+							"operator": "-",
+							"right": {
+								"matcher": { "id": "byName", "options": "cumulativeFailures" }
+							}
+						},
+						"mode": "binary",
+						"reduce": { "reducer": "sum" },
+						"replaceFields": false
+					}
+				},
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "cumulative sli %",
+						"binary": {
+							"left": {
+								"matcher": { "id": "byName", "options": "totalRemaining" }
+							},
+							"operator": "/",
+							"right": {
+								"matcher": { "id": "byName", "options": "totalEvents" }
+							}
+						},
+						"mode": "binary",
+						"reduce": { "reducer": "sum" },
+						"replaceFields": false
+					}
+				},
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "sli - objective",
+						"binary": {
+							"left": {
+								"matcher": { "id": "byName", "options": "cumulative sli %" }
+							},
+							"operator": "-",
+							"right": { "fixed": 0.9995 }
+						},
+						"mode": "binary",
+						"reduce": { "reducer": "sum" }
+					}
+				},
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "error objective",
+						"binary": {
+							"left": { "fixed": "1" },
+							"operator": "-",
+							"right": { "fixed": 0.9995 }
+						},
+						"mode": "binary",
+						"reduce": { "reducer": "sum" }
+					}
+				},
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "% error budget remaining",
+						"binary": {
+							"left": {
+								"matcher": { "id": "byName", "options": "sli - objective" }
+							},
+							"operator": "/",
+							"right": {
+								"matcher": { "id": "byName", "options": "error objective" }
+							}
+						},
+						"mode": "binary",
+						"reduce": { "reducer": "sum" },
+						"replaceFields": true
+					}
+				}
+			],
+			"targets": [
+				{
+					"refId": "Total Events",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "300 * sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[$__range:5m] @ ${__to:date:seconds} offset 1s)) unless on() absent(sli_total_count_5m{slo_name=\"notification\"})",
+					"instant": false,
+					"range": true,
+					"legendFormat": "totalEvents"
+				},
+				{
+					"refId": "Failures in Range",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_min(300 * (sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:5m] offset 1s)) \n- sum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:5m] offset 1s))), 0)",
+					"instant": false,
+					"range": true,
+					"legendFormat": "failureEventsInRange"
+				}
+			]
+		},
+		{
+			"id": 9,
+			"type": "stat",
+			"title": "30d Remaining Error Budget",
+			"description": "The unspent error budget over the last {0.9995 30d} Window",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 5, "x": 19, "y": 15 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"min": 0,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "red", "value": null },
+							{ "color": "yellow", "value": 0 },
+							{ "color": "green", "value": 0.2 }
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "horizontal",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "Error budget left",
+						"mode": "reduceRow",
+						"reduce": { "reducer": "mean" },
+						"replaceFields": true
+					}
+				}
+			],
+			"targets": [
+				{
+					"refId": "A",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "(\n\t\tclamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m])), 1)\n\t\t- on() max by (slo_name) (sli_objective{slo_name=\"notification\"})\n\t)\n\t/ on () (1 - max by (slo_name) (sli_objective{slo_name=\"notification\"}))",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			]
+		},
+		{
+			"id": 10,
+			"type": "timeseries",
+			"title": "Error Budget Burn Rate",
+			"description": "The burn rate is the rate that this SLO is spending its error budget over last 5 min [0, 1.0]. A 1x burn rate will consume the entire error budget allotted for that period.",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 19, "x": 0, "y": 22 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"custom": {
+						"drawStyle": "line",
+						"lineWidth": 2,
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"axisSoftMin": 0,
+						"lineInterpolation": "smooth",
+						"showPoints": "never",
+						"spanNulls": false,
+						"stacking": { "group": "A", "mode": "none" },
+						"thresholdsStyle": { "mode": "off" }
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "green", "value": null },
+							{ "color": "yellow", "value": 1 },
+							{ "color": "dark-red", "value": 3 }
+						]
+					},
+					"unit": "none"
+				},
+				"overrides": []
+			},
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": { "mode": "single", "sort": "none" }
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "(\n\t\t1 - clamp_max((sum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:]))), 1)\n)\n/ on() (1 - max by (slo_name) (sli_objective{slo_name=\"notification\"}))\n# omit NaN by comparing to Infinity\n< 1e+308",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "computed_before_creation_time",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "((1 - ((sum(rate(sli_logwriter_1m{service=\"notification\",status=\"success\"}[$__rate_interval] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m))) / sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m)))) / (1 - 0.9995)) AND timestamp(sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m))) < 1782727587",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				}
+			]
+		},
+		{
+			"id": 11,
+			"type": "stat",
+			"title": "Current Burn Rate",
+			"description": "The burn rate is the rate that this SLO is spending its error budget over last 5 min [0, 1.0]. A 1x burn rate will consume the entire error budget allotted for that period.",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 5, "x": 19, "y": 23 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"decimals": 2,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "green", "value": null },
+							{ "color": "#EAB839", "value": 1 },
+							{ "color": "dark-red", "value": 3 }
+						]
+					},
+					"unit": "none"
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "Error burn rate",
+						"mode": "reduceRow",
+						"reduce": { "reducer": "mean" },
+						"replaceFields": true
+					}
+				}
+			],
+			"targets": [
+				{
+					"refId": "A",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "(\n\t\t1 - clamp_max((sum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:]))), 1)\n)\n/ on() (1 - max by (slo_name) (sli_objective{slo_name=\"notification\"}))\n# omit NaN by comparing to Infinity\n< 1e+308",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				}
+			]
+		},
+		{
+			"id": 12,
+			"type": "alertlist",
+			"title": "Burn Rate Alerts",
+			"description": "All active alerts for this SLO",
+			"gridPos": { "h": 7, "w": 17, "x": 0, "y": 30 },
+			"options": {
+				"alertInstanceLabelFilter": "{slo_name=\"notification\"}",
+				"alertName": "",
+				"dashboardAlerts": false,
+				"datasource": "-- Grafana --",
+				"folder": "",
+				"groupBy": ["grafana_slo_severity"],
+				"groupMode": "custom",
+				"maxItems": 20,
+				"sortOrder": 1,
+				"stateFilter": {
+					"error": true,
+					"firing": true,
+					"noData": true,
+					"normal": true,
+					"pending": true
+				},
+				"viewMode": "list"
+			}
+		},
+		{
+			"id": 13,
+			"type": "grafana-assistant-panel",
+			"title": "Assistant Investigations",
+			"gridPos": { "h": 7, "w": 7, "x": 17, "y": 30 },
+			"options": {
+				"labels": [
+					{ "name": "slo_name", "value": "notification" }
+				],
+				"mode": "investigations"
+			}
+		},
+		{
+			"id": 14,
+			"type": "timeseries",
+			"title": "Event Rate",
+			"description": "Total Rate (for SLIs that compare rate of successful events to rate of total events, this is the latter)",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 24, "x": 0, "y": 38 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "palette-classic" },
+					"custom": {
+						"drawStyle": "line",
+						"lineWidth": 2,
+						"fillOpacity": 0,
+						"gradientMode": "none",
+						"axisSoftMax": 0.05,
+						"lineInterpolation": "linear",
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": { "group": "A", "mode": "none" },
+						"thresholdsStyle": { "mode": "off" }
+					},
+					"unit": "reqps"
+				},
+				"overrides": []
+			},
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": true
+				},
+				"tooltip": { "mode": "single", "sort": "none" }
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sum by (slo_name) (avg_over_time(sli_total_count_5m{slo_name=\"notification\"}[$__interval:]))",
+					"instant": false,
+					"range": true,
+					"legendFormat": ""
+				},
+				{
+					"refId": "computed_before_creation_time",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "(sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m))) AND timestamp(sum(rate(sli_logwriter_1m{service=\"notification\"}[$__rate_interval] offset 2m))) < 1782727587",
+					"instant": false,
+					"range": true,
+					"legendFormat": ""
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,62 @@
+apiVersion: 1
+providers:
+  - name: overview
+    folder: SLO  
+    folderUid: slo  
+    type: file  
+    disableDeletion: false
+    orphanedDataAction: delete  
+    updateIntervalSeconds: 30  
+    allowUiUpdates: false  
+    options:
+      path: /etc/grafana/provisioning/dashboards/overview.json
+  - name: backend
+    folder: SLO  
+    folderUid: slo  
+    type: file  
+    disableDeletion: false
+    orphanedDataAction: delete  
+    updateIntervalSeconds: 30  
+    allowUiUpdates: false  
+    options:
+      path: /etc/grafana/provisioning/dashboards/backend.json
+  - name: frontend
+    folder: SLO  
+    folderUid: slo  
+    type: file  
+    disableDeletion: false
+    orphanedDataAction: delete  
+    updateIntervalSeconds: 30  
+    allowUiUpdates: false  
+    options:
+      path: /etc/grafana/provisioning/dashboards/frontend.json
+  - name: worker
+    folder: SLO  
+    folderUid: slo  
+    type: file  
+    disableDeletion: false
+    orphanedDataAction: delete  
+    updateIntervalSeconds: 30  
+    allowUiUpdates: false  
+    options:
+      path: /etc/grafana/provisioning/dashboards/worker.json
+  - name: notification
+    folder: SLO  
+    folderUid: slo  
+    type: file  
+    disableDeletion: false
+    orphanedDataAction: delete  
+    updateIntervalSeconds: 30  
+    allowUiUpdates: false  
+    options:
+      path: /etc/grafana/provisioning/dashboards/notification.json
+  - name: payment
+    folder: SLO  
+    folderUid: slo  
+    type: file  
+    disableDeletion: false
+    orphanedDataAction: delete  
+    updateIntervalSeconds: 30  
+    allowUiUpdates: false  
+    options:
+      path: /etc/grafana/provisioning/dashboards/payment.json

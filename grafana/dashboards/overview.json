@@ -1,0 +1,1779 @@
+{
+	"id": null,
+	"uid": "slo-dashboard-overview",
+	"title": "SLO Overview",
+	"description": "SLO dashboard Overview",
+	"tags": ["SLO"],
+	"folderUid": "slo",
+	"overwrite": true,
+	"timezone": "browser",
+	"schemaVersion": 36,
+	"version": 0,
+	"refresh": "30s",
+	"time": {
+		"from": "now-1h",
+		"to": "now"
+	},
+	"panels": [
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The number of SLIs that are meeting their SLO objective in the last 1d",
+			"fieldConfig": {
+				"defaults": {
+					"unit": "none"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 0,
+				"y": 0
+			},
+			"id": 2,
+			"options": {
+				"colorMode": "none",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "count(\n\t\t(\n\t\t  sum by (slo_name) (sum_over_time((sli_success_count_5m < +Inf)[1d:5m]))\n\t\t  / sum by (slo_name) (sum_over_time((sli_total_count_5m < +Inf)[1d:5m]))\n\t\t  # combine with series that aren't producing sli_success_count_5m and sli_total_count_5m\n\t\t  or avg by (slo_name) (sli_1d)\n\t\t)\n\t\t> on(slo_name) max by (slo_name) (sli_objective)\n\t  ) OR on() vector(0)\n\t  ",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": true,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "⬆️ 1d target",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The number of SLIs that are meeting their SLO objective in the last 6h",
+			"fieldConfig": {
+				"defaults": {
+					"unit": "none"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 5,
+				"y": 0
+			},
+			"id": 3,
+			"options": {
+				"colorMode": "none",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "count(\n\t\t(\n\t\t  sum by (slo_name) (sum_over_time((sli_success_count_5m < +Inf)[6h:5m]))\n\t\t  / sum by (slo_name) (sum_over_time((sli_total_count_5m < +Inf)[6h:5m]))\n\t\t  # combine with series that aren't producing sli_success_count_5m and sli_total_count_5m\n\t\t  or avg by (slo_name) (sli_6h)\n\t\t)\n\t\t> on(slo_name) max by (slo_name) (sli_objective)\n\t  ) OR on() vector(0)\n\t  ",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": true,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "⬆️ 6h target",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The number of SLIs that are meeting their SLO objective in the last 1h",
+			"fieldConfig": {
+				"defaults": {
+					"unit": "none"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 10,
+				"y": 0
+			},
+			"id": 4,
+			"options": {
+				"colorMode": "none",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "count(\n\t\t(\n\t\t  sum by (slo_name) (sum_over_time((sli_success_count_5m < +Inf)[1h:5m]))\n\t\t  / sum by (slo_name) (sum_over_time((sli_total_count_5m < +Inf)[1h:5m]))\n\t\t  # combine with series that aren't producing sli_success_count_5m and sli_total_count_5m\n\t\t  or avg by (slo_name) (sli_1h)\n\t\t)\n\t\t> on(slo_name) max by (slo_name) (sli_objective)\n\t  ) OR on() vector(0)\n\t  ",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": true,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "⬆️ 1h target",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The number of SLOs that are recording values",
+			"fieldConfig": {
+				"defaults": {
+					"unit": "none"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 15,
+				"y": 0
+			},
+			"id": 5,
+			"options": {
+				"colorMode": "none",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "count(count by (slo_name)(sli_5m)) OR on() vector(0)",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": true,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "SLO count",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The total number of series created by SLO recording rules.",
+			"fieldConfig": {
+				"defaults": {
+					"unit": "none"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 5,
+				"x": 19,
+				"y": 0
+			},
+			"id": 6,
+			"options": {
+				"colorMode": "none",
+				"graphMode": "none",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "count({__name__=~\"sli_.*\", slo_name!=\"\"}) OR on() vector(0)",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": true,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "SLI series",
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "SLO name with hyperlink to the SLO's dashboard",
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 0,
+				"y": 3
+			},
+			"id": 7,
+			"options": {
+				"content": "#### [backend](/d/slo-dashboard-backend/slo-backend?${__url_time_range})",
+				"mode": "markdown"
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"refId": "A"
+				}
+			],
+			"type": "text"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator's value over the last 30d",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 4,
+				"y": 3
+			},
+			"id": 8,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(\nsum(sum_over_time((sli_success_count_5m{slo_name=\"backend\"} < +Inf)[30d:5m]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"backend\"} < +Inf)[30d:5m])), 1)",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "30d SLI",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "SLI value",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The unspent error budget over the last {0.9995 30d} Window",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"min": 0,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "yellow",
+								"value": 0
+							},
+							{
+								"color": "green",
+								"value": 0.2
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 8,
+				"y": 3
+			},
+			"id": 9,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"exemplar": false,
+					"expr": "(\n\t\tclamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"backend\"} < +Inf)[30d:5m]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"backend\"} < +Inf)[30d:5m])), 1)\n\t\t- on() max by (slo_name) (sli_objective{slo_name=\"backend\"})\n\t)\n\t/ on () (1 - max by (slo_name) (sli_objective{slo_name=\"backend\"}))",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "A"
+				}
+			],
+			"title": "Budget left",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "Error budget left",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisPlacement": "auto",
+						"axisSoftMax": 0.05,
+						"drawStyle": "line",
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"lineInterpolation": "linear",
+						"lineWidth": 2,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 12,
+				"x": 12,
+				"y": 3
+			},
+			"id": 1,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"backend\"} < +Inf)[$__interval:]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"backend\"} < +Inf)[$__interval:])), 1)",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"queryType": "linear",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "SLI",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "SLO name with hyperlink to the SLO's dashboard",
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 0,
+				"y": 6
+			},
+			"id": 10,
+			"options": {
+				"content": "#### [frontend](/d/slo-dashboard-frontend/slo-frontend?${__url_time_range})",
+				"mode": "markdown"
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"refId": "A"
+				}
+			],
+			"type": "text"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator's value over the last 30d",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 4,
+				"y": 6
+			},
+			"id": 11,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(\nsum(sum_over_time((sli_success_count_5m{slo_name=\"frontend\"} < +Inf)[30d:5m]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"frontend\"} < +Inf)[30d:5m])), 1)",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "30d SLI",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "SLI value",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The unspent error budget over the last {0.9995 30d} Window",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"min": 0,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "yellow",
+								"value": 0
+							},
+							{
+								"color": "green",
+								"value": 0.2
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 8,
+				"y": 6
+			},
+			"id": 12,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"exemplar": false,
+					"expr": "(\n\t\tclamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"frontend\"} < +Inf)[30d:5m]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"frontend\"} < +Inf)[30d:5m])), 1)\n\t\t- on() max by (slo_name) (sli_objective{slo_name=\"frontend\"})\n\t)\n\t/ on () (1 - max by (slo_name) (sli_objective{slo_name=\"frontend\"}))",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "A"
+				}
+			],
+			"title": "Budget left",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "Error budget left",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisPlacement": "auto",
+						"axisSoftMax": 0.05,
+						"drawStyle": "line",
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"lineInterpolation": "linear",
+						"lineWidth": 2,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 12,
+				"x": 12,
+				"y": 6
+			},
+			"id": 13,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"frontend\"} < +Inf)[$__interval:]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"frontend\"} < +Inf)[$__interval:])), 1)",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"queryType": "linear",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "SLI",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "SLO name with hyperlink to the SLO's dashboard",
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 0,
+				"y": 6
+			},
+			"id": 10,
+			"options": {
+				"content": "#### [worker](/d/slo-dashboard-worker/slo-worker?${__url_time_range})",
+				"mode": "markdown"
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"refId": "A"
+				}
+			],
+			"type": "text"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator's value over the last 30d",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 4,
+				"y": 6
+			},
+			"id": 11,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(\nsum(sum_over_time((sli_success_count_5m{slo_name=\"worker\"} < +Inf)[30d:5m]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"worker\"} < +Inf)[30d:5m])), 1)",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "30d SLI",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "SLI value",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The unspent error budget over the last {0.9995 30d} Window",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"min": 0,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "yellow",
+								"value": 0
+							},
+							{
+								"color": "green",
+								"value": 0.2
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 8,
+				"y": 6
+			},
+			"id": 12,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"exemplar": false,
+					"expr": "(\n\t\tclamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"worker\"} < +Inf)[30d:5m]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"worker\"} < +Inf)[30d:5m])), 1)\n\t\t- on() max by (slo_name) (sli_objective{slo_name=\"worker\"})\n\t)\n\t/ on () (1 - max by (slo_name) (sli_objective{slo_name=\"worker\"}))",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "A"
+				}
+			],
+			"title": "Budget left",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "Error budget left",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisPlacement": "auto",
+						"axisSoftMax": 0.05,
+						"drawStyle": "line",
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"lineInterpolation": "linear",
+						"lineWidth": 2,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 12,
+				"x": 12,
+				"y": 6
+			},
+			"id": 13,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"worker\"} < +Inf)[$__interval:]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"worker\"} < +Inf)[$__interval:])), 1)",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"queryType": "linear",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "SLI",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "SLO name with hyperlink to the SLO's dashboard",
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 0,
+				"y": 6
+			},
+			"id": 10,
+			"options": {
+				"content": "#### [payment](/d/slo-dashboard-payment/slo-payment?${__url_time_range})",
+				"mode": "markdown"
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"refId": "A"
+				}
+			],
+			"type": "text"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator's value over the last 30d",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 4,
+				"y": 6
+			},
+			"id": 11,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(\nsum(sum_over_time((sli_success_count_5m{slo_name=\"payment\"} < +Inf)[30d:5m]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"payment\"} < +Inf)[30d:5m])), 1)",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "30d SLI",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "SLI value",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The unspent error budget over the last {0.9995 30d} Window",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"min": 0,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "yellow",
+								"value": 0
+							},
+							{
+								"color": "green",
+								"value": 0.2
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 8,
+				"y": 6
+			},
+			"id": 12,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"exemplar": false,
+					"expr": "(\n\t\tclamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"payment\"} < +Inf)[30d:5m]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"payment\"} < +Inf)[30d:5m])), 1)\n\t\t- on() max by (slo_name) (sli_objective{slo_name=\"payment\"})\n\t)\n\t/ on () (1 - max by (slo_name) (sli_objective{slo_name=\"payment\"}))",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "A"
+				}
+			],
+			"title": "Budget left",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "Error budget left",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisPlacement": "auto",
+						"axisSoftMax": 0.05,
+						"drawStyle": "line",
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"lineInterpolation": "linear",
+						"lineWidth": 2,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 12,
+				"x": 12,
+				"y": 6
+			},
+			"id": 13,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"payment\"} < +Inf)[$__interval:]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"payment\"} < +Inf)[$__interval:])), 1)",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"queryType": "linear",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "SLI",
+			"type": "timeseries"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "SLO name with hyperlink to the SLO's dashboard",
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 0,
+				"y": 6
+			},
+			"id": 10,
+			"options": {
+				"content": "#### [notification](/d/slo-dashboard-notification/slo-notification?${__url_time_range})",
+				"mode": "markdown"
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"refId": "A"
+				}
+			],
+			"type": "text"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator's value over the last 30d",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 4,
+				"y": 6
+			},
+			"id": 11,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(\nsum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m])), 1)",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "recorded_data"
+				}
+			],
+			"title": "30d SLI",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "SLI value",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "The unspent error budget over the last {0.9995 30d} Window",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"min": 0,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "yellow",
+								"value": 0
+							},
+							{
+								"color": "green",
+								"value": 0.2
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 4,
+				"x": 8,
+				"y": 6
+			},
+			"id": 12,
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "horizontal",
+				"percentChangeColorMode": "standard",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"showPercentChange": false,
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"exemplar": false,
+					"expr": "(\n\t\tclamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m]))\n\t\t/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[30d:5m])), 1)\n\t\t- on() max by (slo_name) (sli_objective{slo_name=\"notification\"})\n\t)\n\t/ on () (1 - max by (slo_name) (sli_objective{slo_name=\"notification\"}))",
+					"hide": false,
+					"instant": true,
+					"interval": "",
+					"legendFormat": "__auto",
+					"range": false,
+					"refId": "A"
+				}
+			],
+			"title": "Budget left",
+			"transformations": [
+				{
+					"id": "calculateField",
+					"options": {
+						"alias": "Error budget left",
+						"mode": "reduceRow",
+						"reduce": {
+							"reducer": "mean"
+						},
+						"replaceFields": true
+					}
+				}
+			],
+			"type": "stat"
+		},
+		{
+			"datasource": {
+				"type": "prometheus",
+				"uid": "prometheus"
+			},
+			"description": "Service level indicator",
+			"fieldConfig": {
+				"defaults": {
+					"color": {
+						"mode": "thresholds"
+					},
+					"custom": {
+						"axisCenteredZero": false,
+						"axisColorMode": "text",
+						"axisPlacement": "auto",
+						"axisSoftMax": 0.05,
+						"drawStyle": "line",
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"hideFrom": {
+							"legend": false,
+							"tooltip": false,
+							"viz": false
+						},
+						"lineInterpolation": "linear",
+						"lineWidth": 2,
+						"pointSize": 5,
+						"scaleDistribution": {
+							"type": "linear"
+						},
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": {
+							"group": "A",
+							"mode": "none"
+						},
+						"thresholdsStyle": {
+							"mode": "off"
+						}
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{
+								"color": "red"
+							},
+							{
+								"color": "green",
+								"value": 0.9995
+							}
+						]
+					},
+					"unit": "percentunit"
+				},
+				"overrides": []
+			},
+			"gridPos": {
+				"h": 3,
+				"w": 12,
+				"x": 12,
+				"y": 6
+			},
+			"id": 13,
+			"options": {
+				"legend": {
+					"calcs": [],
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": {
+					"mode": "single",
+					"sort": "none"
+				}
+			},
+			"repeatDirection": "h",
+			"targets": [
+				{
+					"datasource": {
+						"type": "prometheus",
+						"uid": "prometheus"
+					},
+					"editorMode": "builder",
+					"expr": "clamp_max(sum(sum_over_time((sli_success_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:]))\n/ sum(sum_over_time((sli_total_count_5m{slo_name=\"notification\"} < +Inf)[$__interval:])), 1)",
+					"hide": false,
+					"instant": false,
+					"interval": "",
+					"legendFormat": "__auto",
+					"queryType": "linear",
+					"range": true,
+					"refId": "A"
+				}
+			],
+			"title": "SLI",
+			"type": "timeseries"
+		}
+	]
+}
