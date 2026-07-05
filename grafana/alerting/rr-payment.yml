@@ -1,0 +1,360 @@
+groups:
+  - folder: Recording Rules
+    name: SLI Recording Rules payment
+    interval: 1m
+    rules:
+      - uid: sli_payment_sc_5m
+        title: sli_success_count_5m
+        condition: ""
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              expr: 'sum(sli_logwriter_1m{service="payment", status="success"}) or 0 * sum(sli_logwriter_1m{service="payment"})'
+              instant: true
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+        record:
+          metric: sli_success_count_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_tc_5m
+        title: sli_total_count_5m
+        condition: ""
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                type: prometheus
+                uid: prometheus
+              expr: 'sum(sli_logwriter_1m{service="payment"})'
+              instant: true
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        noDataState: OK
+        execErrState: Error
+        isPaused: false
+        record:
+          metric: sli_total_count_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_5m
+        title: sli_5m
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: (sum(sum_over_time(sli_logwriter_1m{service="payment",status="success"}[5m] offset 2m)) or 0 * sum(sum_over_time(sli_logwriter_1m{service="payment"}[5m] offset 2m))) / sum(sum_over_time(sli_logwriter_1m{service="payment"}[5m] offset 2m))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_30m
+        title: sli_30m
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: (sum(rate(sli_logwriter_1m{service="payment",status="success"}[30m] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="payment"}[30m] offset 2m))) / sum(rate(sli_logwriter_1m{service="payment"}[30m] offset 2m))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_30m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_1h
+        title: sli_1h
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: (sum(rate(sli_logwriter_1m{service="payment",status="success"}[1h] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="payment"}[1h] offset 2m))) / sum(rate(sli_logwriter_1m{service="payment"}[1h] offset 2m))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_1h
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_2h
+        title: sli_2h
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: (sum(rate(sli_logwriter_1m{service="payment",status="success"}[2h] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="payment"}[2h] offset 2m))) / sum(rate(sli_logwriter_1m{service="payment"}[2h] offset 2m))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_2h
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_6h
+        title: sli_6h
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: (sum(rate(sli_logwriter_1m{service="payment",status="success"}[6h] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="payment"}[6h] offset 2m))) / sum(rate(sli_logwriter_1m{service="payment"}[6h] offset 2m))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_6h
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_1d
+        title: sli_1d
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: (sum_over_time((sli_success_count_5m{app="payment"} < +Inf)[1d:5m])) / (sum_over_time((sli_total_count_5m{app="payment"} < +Inf)[1d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_1d
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_3d
+        title: sli_3d
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: (sum_over_time((sli_success_count_5m{app="payment"} < +Inf)[3d:5m])) / (sum_over_time((sli_total_count_5m{app="payment"} < +Inf)[3d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_3d
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_window
+        title: sli_window
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: sum (sum_over_time((sli_5m{app="payment"} < +Inf)[30d:5m])) / sum (count_over_time((sli_5m{app="payment"} < +Inf)[30d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+          grafana_slo_window: 30d
+        isPaused: false
+        record:
+          metric: sli_window
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_info
+        title: sli_info
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: vector(1)
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          grafana_slo_dashboard_url: https://dashingparrot1503.grafana.net/d/grafana_slo_app-payment
+          grafana_app: payment
+          grafana_slo_type: ratio
+          app: payment
+        isPaused: false
+        record:
+          metric: sli_info
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_objective
+        title: sli_objective
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: vector(0.999500)
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+          grafana_slo_window: 30d
+        isPaused: false
+        record:
+          metric: sli_objective
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_payment_ows
+        title: sli_objective_window_seconds
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: vector(2592000)
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          category: availability
+          app: payment
+          grafana_slo_window: 30d
+        isPaused: false
+        record:
+          metric: sli_objective_window_seconds
+          from: A
+          targetDatasourceUid: prometheus

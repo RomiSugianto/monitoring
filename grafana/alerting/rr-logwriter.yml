@@ -1,0 +1,34 @@
+groups:
+  - folder: Recording Rules
+    name: SLI Recording Rules logwriter
+    interval: 1m
+    rules:
+      - uid: sli_logwriter_1m
+        title: sli_logwriter_1m
+        labels:
+          app: logwriter
+        condition: ""
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 60
+              to: 0
+            datasourceUid: loki
+            model:
+              refId: A
+              expr: |
+                {job=logwriter}
+              intervalMs: 60000
+              metrics:
+                - { id: 1, type: count }
+              bucketAggs:
+                - { id: 2, type: terms, field: http_code, settings: { interval: 1m, min_doc_count: 1, order: desc, orderBy: _term, size: 100, }, }
+                - { id: 3, type: terms, field: status, settings: { interval: 1m, min_doc_count: 1, order: desc, orderBy: _term, size: 100, }, }
+                - { id: 4, type: terms, field: service, settings: { interval: 1m, min_doc_count: 1, order: desc, orderBy: _term, size: 100, }, }
+        noDataState: OK
+        execErrState: Error
+        isPaused: true
+        record:
+          metric: sli_logwriter_1m
+          from: A
+          targetDatasourceUid: prometheus
