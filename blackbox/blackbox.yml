@@ -1,0 +1,17 @@
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_status_codes: [200, 204, 206]
+      method: GET
+
+  http_basic:
+    prober: http
+    timeout: 5s
+    http:
+      valid_status_codes: [200, 301, 302, 307, 308]
+      method: GET
+      no_follow_redirects: false
+      fail_if_body_not_matches_regexp:
+        - ""

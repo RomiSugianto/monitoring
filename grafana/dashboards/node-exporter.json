@@ -1,9 +1,9 @@
 {
 	"id": null,
-	"uid": "slo-dashboard",
-	"title": "SLO Dashboard",
+	"uid": "slo-dashboard-node-exporter",
+	"title": "SLO node-exporter",
 	"description": "A minimal example dashboard",
-	"tags": ["example"],
+	"tags": ["SLO"],
 	"timezone": "browser",
 	"schemaVersion": 36,
 	"version": 0,
@@ -19,7 +19,7 @@
 			"title": "",
 			"gridPos": { "h": 4, "w": 9, "x": 0, "y": 0 },
 			"transparent": true,
-			"options": { "content": "# backend SLO\n", "mode": "markdown" }
+			"options": { "content": "# node-exporter SLO\n", "mode": "markdown" }
 		},
 		{
 			"id": 3,
@@ -73,14 +73,14 @@
 					"title": "View alert rule",
 					"type": "link",
 					"targetBlank": true,
-					"url": "/alerting/list?queryString=grafana_slo_severity%3Dcritical%2Cslo_name%3Dbackend"
+					"url": "/alerting/list?queryString=grafana_slo_severity%3Dcritical%2Capp%3Dnode-exporter"
 				}
 			],
 			"targets": [
 				{
 					"refId": "A",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "max((count(GRAFANA_ALERTS{slo_name=\"backend\", grafana_slo_severity=\"critical\", alertstate=\"firing\"})) OR on() vector(0))",
+					"expr": "max((count(GRAFANA_ALERTS{app=\"node-exporter\", grafana_slo_severity=\"critical\", alertstate=\"firing\"})) OR on() vector(0))",
 					"instant": true,
 					"range": false,
 					"legendFormat": "Critical alert"
@@ -139,14 +139,14 @@
 					"title": "View alert rule",
 					"type": "link",
 					"targetBlank": true,
-					"url": "/alerting/list?queryString=grafana_slo_severity%3Dwarning%2Cslo_name%3Dbackend"
+					"url": "/alerting/list?queryString=grafana_slo_severity%3Dwarning%2Capp%3Dnode-exporter"
 				}
 			],
 			"targets": [
 				{
 					"refId": "A",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "max((count(GRAFANA_ALERTS{slo_name=\"backend\", grafana_slo_severity=\"warning\", alertstate=\"firing\"})) OR on() vector(0))",
+					"expr": "max((count(GRAFANA_ALERTS{app=\"node-exporter\", grafana_slo_severity=\"warning\", alertstate=\"firing\"})) OR on() vector(0))",
 					"instant": true,
 					"range": false,
 					"legendFormat": "Warning alert"
@@ -184,8 +184,21 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
+			"targets": [
+				{
+					"refId": "time_window",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_info{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
 			"transformations": [
-				{ "id": "labelsToFields", "options": { "mode": "rows" } },
+				{
+					"id": "labelsToFields",
+					"options": { "mode": "rows", "keepLabels": ["window"] }
+				},
 				{
 					"id": "organize",
 					"options": {
@@ -193,16 +206,6 @@
 						"indexByName": {},
 						"renameByName": { "label": "time_period", "value": "Time Window" }
 					}
-				}
-			],
-			"targets": [
-				{
-					"refId": "time_window",
-					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "label_replace(vector(1), \"time_period\", \"30d\", \"\", \"\")",
-					"instant": false,
-					"range": true,
-					"legendFormat": "__auto"
 				}
 			]
 		},
@@ -242,9 +245,9 @@
 				{
 					"refId": "A",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "vector(0.9995)",
-					"instant": false,
-					"range": true,
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
 					"legendFormat": "__auto"
 				}
 			]
@@ -274,11 +277,11 @@
 					"thresholds": {
 						"mode": "absolute",
 						"steps": [
-							{ "color": "red", "value": null },
-							{ "color": "green", "value": 0.9995 }
+							{ "color": "red", "value": null }
 						]
 					},
-					"unit": "percentunit"
+					"unit": "percentunit",
+					"max": 1
 				},
 				"overrides": []
 			},
@@ -294,18 +297,34 @@
 				{
 					"refId": "recorded_data",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "clamp_max(sum(sum_over_time((sli_success_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:]))\n/ sum(sum_over_time((sli_total_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:])), 1)",
+					"expr": "clamp_max(avg by(app) (avg_over_time(sli_5m{app=\"node-exporter\"}[$__interval:])), 1)",
 					"instant": false,
 					"range": true,
 					"legendFormat": "__auto"
 				},
 				{
-					"refId": "computed_before_creation_time",
+					"refId": "threshold",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "((sum(rate(sli_logwriter_1m{service=\"backend\",status=\"success\"}[$__rate_interval] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m))) / sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m))) AND timestamp(sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m))) < 1782727587",
-					"instant": false,
-					"range": true,
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
 					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
 				}
 			]
 		},
@@ -323,12 +342,11 @@
 					"noValue": "No data",
 					"thresholds": {
 						"mode": "absolute",
-						"steps": [
-							{ "color": "red", "value": null },
-							{ "color": "green", "value": 0.9995 }
-						]
+						"steps": [{ "color": "red", "value": null }]
 					},
-					"unit": "percentunit"
+					"unit": "percentunit",
+					"min": 0,
+					"max": 1
 				},
 				"overrides": []
 			},
@@ -345,33 +363,46 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
-			"transformations": [
-				{
-					"id": "calculateField",
-					"options": {
-						"alias": "SLI value",
-						"mode": "reduceRow",
-						"reduce": { "reducer": "mean" },
-						"replaceFields": true
-					}
-				}
-			],
 			"targets": [
 				{
 					"refId": "recorded_data",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "clamp_max(\nsum(sum_over_time((sli_success_count_1m{slo_name=\"backend\"} < +Inf)[30d:5m]))\n/ sum(sum_over_time((sli_total_count_1m{slo_name=\"backend\"} < +Inf)[30d:5m])), 1)",
+					"expr": "clamp_max(avg by(app) (sli_window{app=\"node-exporter\"}), 1)",
 					"instant": true,
 					"range": false,
 					"legendFormat": "__auto"
+				},
+				{
+					"refId": "threshold",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
 				}
 			]
 		},
 		{
 			"id": 8,
 			"type": "timeseries",
-			"title": "Error Budget Burndown",
-			"description": "The error budget burndown in the selected time",
+			"title": "Error Budget Trend",
+			"description": "If error budget is decreasing over time, it means that your service is spending its error budget faster than it's earning it back.\n\n If error budget is increasing overtime, you're not spending too much of your error budget.",
 			"datasource": { "type": "prometheus", "uid": "prometheus" },
 			"gridPos": { "h": 7, "w": 19, "x": 0, "y": 15 },
 			"fieldConfig": {
@@ -398,7 +429,8 @@
 							{ "color": "green", "value": 0.2 }
 						]
 					},
-					"unit": "percentunit"
+					"unit": "percentunit",
+					"max": 1
 				},
 				"overrides": []
 			},
@@ -410,115 +442,15 @@
 				},
 				"tooltip": { "mode": "single", "sort": "none" }
 			},
-			"transformations": [
-				{
-					"id": "calculateField",
-					"options": {
-						"alias": "cumulativeFailures",
-						"cumulative": { "field": "failureEventsInRange", "reducer": "sum" },
-						"mode": "cumulativeFunctions",
-						"reduce": { "reducer": "sum" }
-					}
-				},
-				{
-					"id": "calculateField",
-					"options": {
-						"alias": "totalRemaining",
-						"binary": {
-							"left": {
-								"matcher": { "id": "byName", "options": "totalEvents" }
-							},
-							"operator": "-",
-							"right": {
-								"matcher": { "id": "byName", "options": "cumulativeFailures" }
-							}
-						},
-						"mode": "binary",
-						"reduce": { "reducer": "sum" },
-						"replaceFields": false
-					}
-				},
-				{
-					"id": "calculateField",
-					"options": {
-						"alias": "cumulative sli %",
-						"binary": {
-							"left": {
-								"matcher": { "id": "byName", "options": "totalRemaining" }
-							},
-							"operator": "/",
-							"right": {
-								"matcher": { "id": "byName", "options": "totalEvents" }
-							}
-						},
-						"mode": "binary",
-						"reduce": { "reducer": "sum" },
-						"replaceFields": false
-					}
-				},
-				{
-					"id": "calculateField",
-					"options": {
-						"alias": "sli - objective",
-						"binary": {
-							"left": {
-								"matcher": { "id": "byName", "options": "cumulative sli %" }
-							},
-							"operator": "-",
-							"right": { "fixed": 0.9995 }
-						},
-						"mode": "binary",
-						"reduce": { "reducer": "sum" }
-					}
-				},
-				{
-					"id": "calculateField",
-					"options": {
-						"alias": "error objective",
-						"binary": {
-							"left": { "fixed": "1" },
-							"operator": "-",
-							"right": { "fixed": 0.9995 }
-						},
-						"mode": "binary",
-						"reduce": { "reducer": "sum" }
-					}
-				},
-				{
-					"id": "calculateField",
-					"options": {
-						"alias": "% error budget remaining",
-						"binary": {
-							"left": {
-								"matcher": { "id": "byName", "options": "sli - objective" }
-							},
-							"operator": "/",
-							"right": {
-								"matcher": { "id": "byName", "options": "error objective" }
-							}
-						},
-						"mode": "binary",
-						"reduce": { "reducer": "sum" },
-						"replaceFields": true
-					}
-				}
-			],
+
 			"targets": [
 				{
-					"refId": "Total Events",
+					"refId": "error_budget_trend",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "300 * sum(sum_over_time((sli_total_count_1m{slo_name=\"backend\"} < +Inf)[$__range:5m] @ ${__to:date:seconds} offset 1s)) unless on() absent(sli_total_count_1m{slo_name=\"backend\"})",
+					"expr": "(avg by (app) (clamp_max(avg_over_time((sli_5m{app=\"node-exporter\"} < +Inf)[$__range:5m]), 1)) - on (app) sli_objective{app=\"node-exporter\"}) / (1 - sli_objective{app=\"node-exporter\"})",
 					"instant": false,
 					"range": true,
-					"legendFormat": "totalEvents"
-				},
-				{
-					"refId": "Failures in Range",
-					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "clamp_min(300 * (sum(sum_over_time((sli_total_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:5m] offset 1s)) \n- sum(sum_over_time((sli_success_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:5m] offset 1s))), 0)",
-					"instant": false,
-					"range": true,
-					"legendFormat": "failureEventsInRange"
+					"legendFormat": "__auto"
 				}
 			]
 		},
@@ -559,6 +491,16 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
+			"targets": [
+				{
+					"refId": "A",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "(clamp_max(sli_window{app=\"node-exporter\"}, 1) - on (app) group_left () sli_objective{app=\"node-exporter\"}) / on (app) group_left () (1 - sli_objective{app=\"node-exporter\"})",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				}
+			],
 			"transformations": [
 				{
 					"id": "calculateField",
@@ -568,16 +510,6 @@
 						"reduce": { "reducer": "mean" },
 						"replaceFields": true
 					}
-				}
-			],
-			"targets": [
-				{
-					"refId": "A",
-					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "(\n\t\tclamp_max(sum(sum_over_time((sli_success_count_1m{slo_name=\"backend\"} < +Inf)[30d:5m]))\n\t\t/ sum(sum_over_time((sli_total_count_1m{slo_name=\"backend\"} < +Inf)[30d:5m])), 1)\n\t\t- on() max by (slo_name) (sli_objective{slo_name=\"backend\"})\n\t)\n\t/ on () (1 - max by (slo_name) (sli_objective{slo_name=\"backend\"}))",
-					"instant": true,
-					"range": false,
-					"legendFormat": "__auto"
 				}
 			]
 		},
@@ -627,15 +559,7 @@
 				{
 					"refId": "recorded_data",
 					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "(\n\t\t1 - clamp_max((sum(sum_over_time((sli_success_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:]))\n\t\t/ sum(sum_over_time((sli_total_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:]))), 1)\n)\n/ on() (1 - max by (slo_name) (sli_objective{slo_name=\"backend\"}))\n# omit NaN by comparing to Infinity\n< 1e+308",
-					"instant": false,
-					"range": true,
-					"legendFormat": "__auto"
-				},
-				{
-					"refId": "computed_before_creation_time",
-					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "((1 - ((sum(rate(sli_logwriter_1m{service=\"backend\",status=\"success\"}[$__rate_interval] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m))) / sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m)))) / (1 - 0.9995)) AND timestamp(sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m))) < 1782727587",
+					"expr": "avg by (app) (1 - clamp_max(avg_over_time(sli_5m{app=\"node-exporter\"}[$__interval:]), 1)) / (1 - sli_objective{app=\"node-exporter\"})",
 					"instant": false,
 					"range": true,
 					"legendFormat": "__auto"
@@ -679,6 +603,16 @@
 				"textMode": "auto",
 				"wideLayout": true
 			},
+			"targets": [
+				{
+					"refId": "A",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "avg by (app) (1 - clamp_max(avg_over_time(sli_5m{app=\"node-exporter\"}[$__interval:]), 1)) / (1 - sli_objective{app=\"node-exporter\"})",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				}
+			],
 			"transformations": [
 				{
 					"id": "calculateField",
@@ -689,16 +623,6 @@
 						"replaceFields": true
 					}
 				}
-			],
-			"targets": [
-				{
-					"refId": "A",
-					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "(\n\t\t1 - clamp_max((sum(sum_over_time((sli_success_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:]))\n\t\t/ sum(sum_over_time((sli_total_count_1m{slo_name=\"backend\"} < +Inf)[$__interval:]))), 1)\n)\n/ on() (1 - max by (slo_name) (sli_objective{slo_name=\"backend\"}))\n# omit NaN by comparing to Infinity\n< 1e+308",
-					"instant": false,
-					"range": true,
-					"legendFormat": "__auto"
-				}
 			]
 		},
 		{
@@ -708,7 +632,7 @@
 			"description": "All active alerts for this SLO",
 			"gridPos": { "h": 7, "w": 17, "x": 0, "y": 30 },
 			"options": {
-				"alertInstanceLabelFilter": "{slo_name=\"backend\"}",
+				"alertInstanceLabelFilter": "{app=\"node-exporter\"}",
 				"alertName": "",
 				"dashboardAlerts": false,
 				"datasource": "-- Grafana --",
@@ -733,64 +657,9 @@
 			"title": "Assistant Investigations",
 			"gridPos": { "h": 7, "w": 7, "x": 17, "y": 30 },
 			"options": {
-				"labels": [
-					{ "name": "slo_name", "value": "backend" }
-				],
+				"labels": [{ "name": "app", "value": "node-exporter" }],
 				"mode": "investigations"
 			}
-		},
-		{
-			"id": 14,
-			"type": "timeseries",
-			"title": "Event Rate",
-			"description": "Total Rate (for SLIs that compare rate of successful events to rate of total events, this is the latter)",
-			"datasource": { "type": "prometheus", "uid": "prometheus" },
-			"gridPos": { "h": 7, "w": 24, "x": 0, "y": 38 },
-			"fieldConfig": {
-				"defaults": {
-					"color": { "mode": "palette-classic" },
-					"custom": {
-						"drawStyle": "line",
-						"lineWidth": 2,
-						"fillOpacity": 0,
-						"gradientMode": "none",
-						"axisSoftMax": 0.05,
-						"lineInterpolation": "linear",
-						"showPoints": "auto",
-						"spanNulls": false,
-						"stacking": { "group": "A", "mode": "none" },
-						"thresholdsStyle": { "mode": "off" }
-					},
-					"unit": "reqps"
-				},
-				"overrides": []
-			},
-			"options": {
-				"legend": {
-					"displayMode": "list",
-					"placement": "bottom",
-					"showLegend": true
-				},
-				"tooltip": { "mode": "single", "sort": "none" }
-			},
-			"targets": [
-				{
-					"refId": "recorded_data",
-					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "sum by (slo_name) (avg_over_time(sli_total_count_1m{slo_name=\"backend\"}[$__interval:]))",
-					"instant": false,
-					"range": true,
-					"legendFormat": ""
-				},
-				{
-					"refId": "computed_before_creation_time",
-					"datasource": { "type": "prometheus", "uid": "prometheus" },
-					"expr": "(sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m))) AND timestamp(sum(rate(sli_logwriter_1m{service=\"backend\"}[$__rate_interval] offset 2m))) < 1782727587",
-					"instant": false,
-					"range": true,
-					"legendFormat": ""
-				}
-			]
 		}
 	],
 	"folderUid": "slo",

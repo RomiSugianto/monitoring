@@ -6,7 +6,7 @@ providers:
     type: file  
     disableDeletion: false
     orphanedDataAction: delete  
-    updateIntervalSeconds: 30  
+    updateIntervalSeconds: 3  
     allowUiUpdates: false  
     options:
       path: /etc/grafana/provisioning/dashboards/overview.json
@@ -16,47 +16,26 @@ providers:
     type: file  
     disableDeletion: false
     orphanedDataAction: delete  
-    updateIntervalSeconds: 30  
+    updateIntervalSeconds: 3  
     allowUiUpdates: false  
     options:
       path: /etc/grafana/provisioning/dashboards/backend.json
-  - name: frontend
-    folder: SLO  
-    folderUid: slo  
-    type: file  
-    disableDeletion: false
-    orphanedDataAction: delete  
-    updateIntervalSeconds: 30  
-    allowUiUpdates: false  
-    options:
-      path: /etc/grafana/provisioning/dashboards/frontend.json
-  - name: worker
-    folder: SLO  
-    folderUid: slo  
-    type: file  
-    disableDeletion: false
-    orphanedDataAction: delete  
-    updateIntervalSeconds: 30  
-    allowUiUpdates: false  
-    options:
-      path: /etc/grafana/provisioning/dashboards/worker.json
-  - name: notification
-    folder: SLO  
-    folderUid: slo  
-    type: file  
-    disableDeletion: false
-    orphanedDataAction: delete  
-    updateIntervalSeconds: 30  
-    allowUiUpdates: false  
-    options:
-      path: /etc/grafana/provisioning/dashboards/notification.json
   - name: payment
     folder: SLO  
     folderUid: slo  
     type: file  
     disableDeletion: false
     orphanedDataAction: delete  
-    updateIntervalSeconds: 30  
+    updateIntervalSeconds: 3  
     allowUiUpdates: false  
     options:
       path: /etc/grafana/provisioning/dashboards/payment.json
+  - name: node-exporter
+    folder: SLO  
+    folderUid: slo  
+    type: file  
+    disableDeletion: false  
+    updateIntervalSeconds: 3  
+    allowUiUpdates: false  
+    options:
+      path: /etc/grafana/provisioning/dashboards/node-exporter.json

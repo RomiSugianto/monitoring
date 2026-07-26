@@ -28,8 +28,10 @@ REMOTE_WRITE_PASSWORD = os.getenv("PROMETHEUS_REMOTE_WRITE_PASSWORD")
 
 # TLS best practice: verify certificates.
 REMOTE_WRITE_CA_CERT_PATH = os.getenv("REMOTE_WRITE_CA_CERT_PATH")
+REMOTE_WRITE_SKIP_VERIFY = os.getenv("REMOTE_WRITE_SKIP_VERIFY", "0") in ("1", "true")
 DEBUG_REMOTE_WRITE = os.getenv("DEBUG_REMOTE_WRITE", "0") == "1"
 
+INTERVAL = 1
 
 # ── Minimal protobuf encoder ───────────────────────────────
 def varint(n):
@@ -80,11 +82,12 @@ def push(series_list):
 
     payload = write_request(series_list)
 
-    ca_path = os.getenv("REMOTE_WRITE_CA_CERT_PATH")
-
-    req_kwargs = {"verify": ca_path or True}
-
-    req_kwargs = {}
+    if REMOTE_WRITE_SKIP_VERIFY:
+        req_kwargs = {"verify": False}
+    elif REMOTE_WRITE_CA_CERT_PATH:
+        req_kwargs = {"verify": REMOTE_WRITE_CA_CERT_PATH}
+    else:
+        req_kwargs = {"verify": True}
     if REMOTE_WRITE_USERNAME is not None:
         req_kwargs["auth"] = (REMOTE_WRITE_USERNAME, REMOTE_WRITE_PASSWORD)
 
@@ -110,9 +113,9 @@ print("Pushing metrics to Grafana Cloud Prometheus...")
 counters = {"success": 0, "failed": 0}
 
 while True:
-    ts_ms    = int(time.time() * 1000)
+    ts_ms = int(time.time() * 1000)
     endpoint = random.choice(ENDPOINTS)
-    status   = "success" if random.random() < 0.9 else "failed"
+    status = "success" if random.random() < 0.9 else "failed"
     counters[status] += 1
 
     series = [
@@ -132,4 +135,4 @@ while True:
     if resp.status_code not in (200, 204):
         print(f"  ERROR: {resp.text}")
 
-time.sleep(5)
+time.sleep(INTERVAL)

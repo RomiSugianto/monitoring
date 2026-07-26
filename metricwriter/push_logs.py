@@ -23,6 +23,9 @@ LOKI_URL = os.getenv("LOKI_REMOTE_WRITE_URL", "http://localhost:3100/loki/api/v1
 USERNAME = os.getenv("LOKI_REMOTE_WRITE_USERNAME")
 PASSWORD = os.getenv("LOKI_REMOTE_WRITE_PASSWORD")
 
+REMOTE_WRITE_SKIP_VERIFY = os.getenv("REMOTE_WRITE_SKIP_VERIFY", "0") in ("1", "true")
+JOB_NAME = "metric_writer"
+INTERVAL = 1
 
 # ── Push logs to Loki ──────────────────────────────────────
 def push_logs(stream_labels, log_lines):
@@ -41,7 +44,12 @@ def push_logs(stream_labels, log_lines):
     if (USERNAME is None) != (PASSWORD is None):
         raise RuntimeError("LOKI_USERNAME and LOKI_PASSWORD must be set together.")
 
-    req_kwargs = {"verify": ca_path or True}
+    if LOKI_SKIP_VERIFY:
+        req_kwargs = {"verify": False}
+    elif ca_path:
+        req_kwargs = {"verify": ca_path}
+    else:
+        req_kwargs = {"verify": True}
 
     # We validated USERNAME/PASSWORD are set together above, so auth is always a (str, str) here.
     auth = (USERNAME, PASSWORD)  # type: ignore[arg-type]
@@ -51,7 +59,7 @@ def push_logs(stream_labels, log_lines):
         json=payload,
         auth=(USERNAME, PASSWORD),
         headers={"Content-Type": "application/json"},
-        verify=ca_path or True,
+        **req_kwargs,
         timeout=15,
     )
 
@@ -65,20 +73,20 @@ METHODS   = ["GET", "POST", "DELETE"]
 
 def simulate_request():
     endpoint = random.choice(ENDPOINTS)
-    method   = random.choice(METHODS)
-    status   = "success" if random.random() < 0.9 else "failed"
-    code     = 200 if status == "success" else random.choice([400, 500, 503])
+    method = random.choice(METHODS)
+    status = "success" if random.random() < 0.9 else "failed"
+    code = 200 if status == "success" else random.choice([400, 500, 503])
     duration = round(random.uniform(10, 2000))  # ms
 
     log = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "level":     "INFO" if status == "success" else "ERROR",
-        "method":    method,
-        "endpoint":  endpoint,
-        "status":    status,
+        "level": "INFO" if status == "success" else "ERROR",
+        "method": method,
+        "endpoint": endpoint,
+        "status": status,
         "http_code": code,
         "duration": duration,
-        "message":   f"{method} {endpoint} → {code} ({duration}ms)"
+        "message": f"{method} {endpoint} → {code} ({duration}ms)"
     }
     return status, log
 
@@ -91,9 +99,9 @@ while True:
     ts_ns = str(time.time_ns())
 
     labels = {
-        "job":      "python-app",
-        "env":      "dev",
-        "status":   status,
+        "job": JOB_NAME,
+        "env": "dev",
+        "status": status,
         "endpoint": log["endpoint"]
     }
 
@@ -105,4 +113,4 @@ while True:
     if resp.status_code not in (200, 204):
         print(f"  ERROR: {resp.text}")
 
-    time.sleep(2)
+    time.sleep(INTERVAL)

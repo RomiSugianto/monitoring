@@ -24,13 +24,13 @@ except Exception:
 # REMOTE_WRITE_URL can be a local receiver or Grafana/Mimir endpoint.
 REMOTE_WRITE_URL = os.getenv("PROMETHEUS_REMOTE_WRITE_URL", "http://localhost:9090/api/v1/write")
 
-
 # Optional basic auth. Do NOT commit real credentials.
 REMOTE_WRITE_USERNAME = os.getenv("PROMETHEUS_REMOTE_WRITE_USERNAME")
 REMOTE_WRITE_PASSWORD = os.getenv("PROMETHEUS_REMOTE_WRITE_PASSWORD")
 
 # TLS best practice: verify certificates.
 REMOTE_WRITE_CA_CERT_PATH = os.getenv("REMOTE_WRITE_CA_CERT_PATH")
+REMOTE_WRITE_SKIP_VERIFY = os.getenv("REMOTE_WRITE_SKIP_VERIFY", "0") in ("1", "true")
 DEBUG_REMOTE_WRITE = os.getenv("DEBUG_REMOTE_WRITE", "0") == "1"
 
 
@@ -77,9 +77,10 @@ def push(series_list):
     if REMOTE_WRITE_USERNAME is not None:
         req_kwargs["auth"] = (REMOTE_WRITE_USERNAME, REMOTE_WRITE_PASSWORD)
 
-    # TLS verification: keep verify=True by default.
-    # If a CA bundle is provided, use it.
-    if REMOTE_WRITE_CA_CERT_PATH:
+    # TLS verification: skip, use CA bundle, or default True.
+    if REMOTE_WRITE_SKIP_VERIFY:
+        req_kwargs["verify"] = False
+    elif REMOTE_WRITE_CA_CERT_PATH:
         req_kwargs["verify"] = REMOTE_WRITE_CA_CERT_PATH
     else:
         req_kwargs["verify"] = True
@@ -107,12 +108,12 @@ def push(series_list):
 
 # ── Service simulation config ──────────────────────────────
 INTERVAL = 1  # seconds
+JOB_NAME = "metricwriter"
+METRIC_NAME = "metricwriter"
+
 SERVICES = {
-    "payment":      {"base_rps": 15, "error_rate": 0.0002},
-    "worker":       {"base_rps": 20, "error_rate": 0.0002},
-    "notification": {"base_rps": 10, "error_rate": 0.0002},
-    "backend":      {"base_rps": 12, "error_rate": 0.0002},
-    "frontend":     {"base_rps": 12, "error_rate": 0.0002},
+    "payment":      {"base_rps": 15, "error_rate": 0.0004},
+    "backend":      {"base_rps": 12, "error_rate": 0.0004},
 }
 
 STATUS_CODES = {
@@ -152,8 +153,8 @@ def simulate_minute_counts(service, config):
     # Add realistic variance (±30%)
     total = int(base * 60 * random.uniform(0.7, 1.3))
 
-    n_server_err = int(total * err_rate * random.uniform(0.01, 0.05))
-    n_client_err = int(total * 0.02 * random.uniform(0.01, 0.05))
+    n_server_err = int(total * err_rate * random.uniform(0.0001, 0.06))
+    n_client_err = int(total * 0.02 * random.uniform(0.0001, 0.06))
     n_success    = total - n_server_err - n_client_err
 
     counts = {}
@@ -194,8 +195,8 @@ while True:
         for status_code, count in counts.items():
             series.append((
                 {
-                    "__name__" : "sli_logwriter_1m",
-                    "job" : "logwriter",
+                    "__name__" : METRIC_NAME,
+                    "job" : JOB_NAME,
                     "service" : service,
                     "message" : map_message(service, status_code),
                     "status" : map_status(status_code),

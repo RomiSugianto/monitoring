@@ -1,62 +1,10 @@
 groups:
   - folder: Recording Rules
-    name: SLI Recording Rules worker
+    name: SLI Recording Rules node-exporter
     interval: 1m
     rules:
-      - uid: sli_worker_sc_5m
-        title: sli_success_count_5m
-        condition: ""
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                type: prometheus
-                uid: prometheus
-              expr: 'sum(sli_logwriter_1m{service="worker", status="success"}) or 0 * sum(sli_logwriter_1m{service="worker"})'
-              instant: true
-              refId: A
-        labels:
-          category: availability
-          app: worker
-        noDataState: OK
-        execErrState: Error
-        isPaused: false
-        record:
-          metric: sli_success_count_5m
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_tc_5m
-        title: sli_total_count_5m
-        condition: ""
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                type: prometheus
-                uid: prometheus
-              expr: 'sum(sli_logwriter_1m{service="worker"})'
-              instant: true
-              refId: A
-        labels:
-          category: availability
-          app: worker
-        noDataState: OK
-        execErrState: Error
-        isPaused: false
-        record:
-          metric: sli_total_count_5m
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_5m
-        title: sli_5m
+      - uid: sli_ne_node_cpu_5m
+        title: sli_node_cpu_5m
         data:
           - refId: A
             relativeTimeRange:
@@ -67,7 +15,14 @@ groups:
               datasource:
                 dstype: prometheus
                 uid: prometheus
-              expr: (sum(sum_over_time(sli_logwriter_1m{service="worker",status="success"}[5m] offset 2m)) or 0 * sum(sum_over_time(sli_logwriter_1m{service="worker"}[5m] offset 2m))) / sum(sum_over_time(sli_logwriter_1m{service="worker"}[5m] offset 2m))
+              expr: |
+                avg_over_time(
+                  (
+                    sum(1 - avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) < bool 0.85)
+                    /
+                    count(avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])))
+                  )[5m:1m]
+                )
               instant: true
               intervalMs: 1000
               legendFormat: __auto
@@ -75,15 +30,16 @@ groups:
               range: false
               refId: A
         labels:
-          category: availability
-          app: worker
+          sli: node_cpu
+          category: capacity
+          app: node-exporter
         isPaused: false
         record:
           metric: sli_5m
           from: A
           targetDatasourceUid: prometheus
-      - uid: sli_worker_30m
-        title: sli_30m
+      - uid: sli_ne_node_cpu_window
+        title: sli_node_cpu_window
         data:
           - refId: A
             relativeTimeRange:
@@ -94,7 +50,10 @@ groups:
               datasource:
                 dstype: prometheus
                 uid: prometheus
-              expr: (sum(rate(sli_logwriter_1m{service="worker",status="success"}[30m] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="worker"}[30m] offset 2m))) / sum(rate(sli_logwriter_1m{service="worker"}[30m] offset 2m))
+              expr: |
+                sum (sum_over_time((sli_5m{app="node-exporter", sli="node_cpu"} < +Inf)[30d:5m])) 
+                / 
+                sum (count_over_time((sli_5m{app="node-exporter", sli="node_cpu"} < +Inf)[30d:5m]))
               instant: true
               intervalMs: 1000
               legendFormat: __auto
@@ -102,177 +61,319 @@ groups:
               range: false
               refId: A
         labels:
-          category: availability
-          app: worker
-        isPaused: false
-        record:
-          metric: sli_30m
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_1h
-        title: sli_1h
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                dstype: prometheus
-                uid: prometheus
-              expr: (sum(rate(sli_logwriter_1m{service="worker",status="success"}[1h] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="worker"}[1h] offset 2m))) / sum(rate(sli_logwriter_1m{service="worker"}[1h] offset 2m))
-              instant: true
-              intervalMs: 1000
-              legendFormat: __auto
-              maxDataPoints: 43200
-              range: false
-              refId: A
-        labels:
-          category: availability
-          app: worker
-        isPaused: false
-        record:
-          metric: sli_1h
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_2h
-        title: sli_2h
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                dstype: prometheus
-                uid: prometheus
-              expr: (sum(rate(sli_logwriter_1m{service="worker",status="success"}[2h] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="worker"}[2h] offset 2m))) / sum(rate(sli_logwriter_1m{service="worker"}[2h] offset 2m))
-              instant: true
-              intervalMs: 1000
-              legendFormat: __auto
-              maxDataPoints: 43200
-              range: false
-              refId: A
-        labels:
-          category: availability
-          app: worker
-        isPaused: false
-        record:
-          metric: sli_2h
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_6h
-        title: sli_6h
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                dstype: prometheus
-                uid: prometheus
-              expr: (sum(rate(sli_logwriter_1m{service="worker",status="success"}[6h] offset 2m)) or 0 * sum(rate(sli_logwriter_1m{service="worker"}[6h] offset 2m))) / sum(rate(sli_logwriter_1m{service="worker"}[6h] offset 2m))
-              instant: true
-              intervalMs: 1000
-              legendFormat: __auto
-              maxDataPoints: 43200
-              range: false
-              refId: A
-        labels:
-          category: availability
-          app: worker
-        isPaused: false
-        record:
-          metric: sli_6h
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_1d
-        title: sli_1d
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                dstype: prometheus
-                uid: prometheus
-              expr: (sum_over_time((sli_success_count_5m{app="worker"} < +Inf)[1d:5m])) / (sum_over_time((sli_total_count_5m{app="worker"} < +Inf)[1d:5m]))
-              instant: true
-              intervalMs: 1000
-              legendFormat: __auto
-              maxDataPoints: 43200
-              range: false
-              refId: A
-        labels:
-          category: availability
-          app: worker
-        isPaused: false
-        record:
-          metric: sli_1d
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_3d
-        title: sli_3d
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                dstype: prometheus
-                uid: prometheus
-              expr: (sum_over_time((sli_success_count_5m{app="worker"} < +Inf)[3d:5m])) / (sum_over_time((sli_total_count_5m{app="worker"} < +Inf)[3d:5m]))
-              instant: true
-              intervalMs: 1000
-              legendFormat: __auto
-              maxDataPoints: 43200
-              range: false
-              refId: A
-        labels:
-          category: availability
-          app: worker
-        isPaused: false
-        record:
-          metric: sli_3d
-          from: A
-          targetDatasourceUid: prometheus
-      - uid: sli_worker_window
-        title: sli_window
-        data:
-          - refId: A
-            relativeTimeRange:
-              from: 600
-              to: 0
-            datasourceUid: prometheus
-            model:
-              datasource:
-                dstype: prometheus
-                uid: prometheus
-              expr: sum (sum_over_time((sli_5m{app="worker"} < +Inf)[30d:5m])) / sum (count_over_time((sli_5m{app="worker"} < +Inf)[30d:5m]))
-              instant: true
-              intervalMs: 1000
-              legendFormat: __auto
-              maxDataPoints: 43200
-              range: false
-              refId: A
-        labels:
-          category: availability
-          app: worker
-          grafana_slo_window: 30d
+          sli: node_cpu
+          category: capacity
+          app: node-exporter
+          window: 30d
         isPaused: false
         record:
           metric: sli_window
           from: A
           targetDatasourceUid: prometheus
-      - uid: sli_worker_info
+      - uid: sli_ne_node_memory_5m
+        title: sli_node_memory_5m
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                avg_over_time(
+                  (
+                    sum(
+                      (
+                        1 - (
+                          node_memory_MemAvailable_bytes{}  
+                          /
+                          node_memory_MemTotal_bytes{}  
+                        )
+                      ) < bool 0.90  
+                    )
+                    /
+                    count(
+                      node_memory_MemAvailable_bytes{}  
+                      /
+                      node_memory_MemTotal_bytes{}  
+                    )
+                  )[30m:5m]
+                )
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: node_memory
+          category: capacity
+          app: node-exporter
+        isPaused: false
+        record:
+          metric: sli_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_node_memory_window
+        title: sli_node_memory_window
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                sum (sum_over_time((sli_5m{app="node-exporter", sli="node_memory"} < +Inf)[30d:5m])) 
+                / 
+                sum (count_over_time((sli_5m{app="node-exporter", sli="node_memory"} < +Inf)[30d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: node_memory
+          category: capacity
+          app: node-exporter
+          window: 30d
+        isPaused: false
+        record:
+          metric: sli_window
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_node_disk_5m
+        title: sli_node_disk_5m
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                avg_over_time(
+                    (
+                        sum(
+                            (
+                                (
+                                    rate(node_disk_read_time_seconds_total[1m])
+                                    +
+                                    rate(node_disk_write_time_seconds_total[1m])
+                                )
+                                /
+                                (
+                                    (
+                                        rate(node_disk_reads_completed_total[1m])
+                                        +
+                                        rate(node_disk_writes_completed_total[1m])
+                                    ) > 0
+                                )
+                            ) < bool 0.5
+                        )
+                        /
+                        count(
+                            (
+                                rate(node_disk_reads_completed_total[1m])
+                                +
+                                rate(node_disk_writes_completed_total[1m])
+                            ) > 0
+                        )
+                    )[5m:1m]
+                )
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: node_disk
+          category: performance
+          app: node-exporter
+        isPaused: false
+        record:
+          metric: sli_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_node_disk_window
+        title: sli_node_disk_window
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                sum (sum_over_time((sli_5m{app="node-exporter", sli="node_disk"} < +Inf)[30d:5m])) 
+                / 
+                sum (count_over_time((sli_5m{app="node-exporter", sli="node_disk"} < +Inf)[30d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: node_disk
+          category: performance
+          app: node-exporter
+          window: 30d
+        isPaused: false
+        record:
+          metric: sli_window
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_probe_success_5m
+        title: sli_probe_success_5m
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                avg_over_time(
+                    (
+                        sum(probe_success)
+                        /
+                        count(probe_success)
+                    )[5m:1m]
+                )
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: probe_success
+          category: availability
+          app: node-exporter
+        isPaused: false
+        record:
+          metric: sli_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_probe_success_window
+        title: sli_probe_success_window
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                sum (sum_over_time((sli_5m{app="node-exporter", sli="probe_success"} < +Inf)[30d:5m])) 
+                / 
+                sum (count_over_time((sli_5m{app="node-exporter", sli="probe_success"} < +Inf)[30d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: probe_success
+          category: availability
+          app: node-exporter
+          window: 30d
+        isPaused: false
+        record:
+          metric: sli_window
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_probe_duration_5m
+        title: sli_probe_duration_5m
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                avg_over_time(
+                    (
+                        sum(probe_duration_seconds < bool 0.5)
+                        /
+                        count(probe_duration_seconds)
+                    )[5m:1m]
+                )
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: probe_duration
+          category: performance
+          app: node-exporter
+        isPaused: false
+        record:
+          metric: sli_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_probe_duration_window
+        title: sli_probe_duration_window
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                sum (sum_over_time((sli_5m{app="node-exporter", sli="probe_duration"} < +Inf)[30d:5m])) 
+                / 
+                sum (count_over_time((sli_5m{app="node-exporter", sli="probe_duration"} < +Inf)[30d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: probe_duration
+          category: performance
+          app: node-exporter
+          window: 30d
+        isPaused: false
+        record:
+          metric: sli_window
+          from: A
+          targetDatasourceUid: prometheus
+          
+      - uid: sli_ne_info
         title: sli_info
         data:
           - refId: A
@@ -292,17 +393,15 @@ groups:
               range: false
               refId: A
         labels:
-          category: availability
-          grafana_slo_dashboard_url: https://dashingparrot1503.grafana.net/d/grafana_slo_app-worker
-          grafana_app: worker
-          grafana_slo_type: ratio
-          app: worker
+          dashboard_url: http://localhost:3000/d/slo-dashboard-node-exporter/slo-node-exporter?${__url_time_range}
+          app: node-exporter
+          window: 30d
         isPaused: false
         record:
           metric: sli_info
           from: A
           targetDatasourceUid: prometheus
-      - uid: sli_worker_objective
+      - uid: sli_ne_objective
         title: sli_objective
         data:
           - refId: A
@@ -314,7 +413,7 @@ groups:
               datasource:
                 dstype: prometheus
                 uid: prometheus
-              expr: vector(0.999500)
+              expr: vector(0.9950)
               instant: true
               intervalMs: 1000
               legendFormat: __auto
@@ -322,15 +421,13 @@ groups:
               range: false
               refId: A
         labels:
-          category: availability
-          app: worker
-          grafana_slo_window: 30d
+          app: node-exporter
         isPaused: false
         record:
           metric: sli_objective
           from: A
           targetDatasourceUid: prometheus
-      - uid: sli_worker_ows
+      - uid: sli_ne_ows
         title: sli_objective_window_seconds
         data:
           - refId: A
@@ -350,9 +447,7 @@ groups:
               range: false
               refId: A
         labels:
-          category: availability
-          app: worker
-          grafana_slo_window: 30d
+          app: node-exporter
         isPaused: false
         record:
           metric: sli_objective_window_seconds
