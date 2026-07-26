@@ -14,7 +14,7 @@
 	},
 	"panels": [
 		{
-			"id": 2,
+			"id": 1,
 			"type": "text",
 			"title": "",
 			"gridPos": { "h": 4, "w": 9, "x": 0, "y": 0 },
@@ -22,7 +22,7 @@
 			"options": { "content": "# node-exporter SLO\n", "mode": "markdown" }
 		},
 		{
-			"id": 3,
+			"id": 2,
 			"type": "stat",
 			"title": "",
 			"datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -88,7 +88,7 @@
 			]
 		},
 		{
-			"id": 4,
+			"id": 3,
 			"type": "stat",
 			"title": "",
 			"datasource": { "type": "prometheus", "uid": "prometheus" },
@@ -154,7 +154,7 @@
 			]
 		},
 		{
-			"id": 5,
+			"id": 4,
 			"type": "stat",
 			"title": "Time Window",
 			"description": "The time window over which the service level objective is being measured over",
@@ -210,7 +210,7 @@
 			]
 		},
 		{
-			"id": 6,
+			"id": 5,
 			"type": "stat",
 			"title": "SLO",
 			"description": "The SLO's Objective value. Always between 0 and 100%",
@@ -253,7 +253,7 @@
 			]
 		},
 		{
-			"id": 1,
+			"id": 6,
 			"type": "timeseries",
 			"title": "SLI",
 			"description": "Service level indicator",
@@ -660,6 +660,444 @@
 				"labels": [{ "name": "app", "value": "node-exporter" }],
 				"mode": "investigations"
 			}
+		},
+		{
+			"id": 14,
+			"type": "timeseries",
+			"title": "SLI",
+			"description": "Service level indicator",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 19, "x": 0, "y": 32 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"custom": {
+						"drawStyle": "line",
+						"lineWidth": 2,
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"axisSoftMax": 0.05,
+						"lineInterpolation": "linear",
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": { "group": "A", "mode": "none" },
+						"thresholdsStyle": { "mode": "off" }
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "red", "value": null }
+						]
+					},
+					"unit": "percentunit",
+					"max": 1
+				},
+				"overrides": []
+			},
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": { "mode": "single", "sort": "none" }
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(avg by(app) (avg_over_time(sli_5m{app=\"node-exporter\", category=\"availability\"}[$__interval:])), 1)",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "threshold",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
+				}
+			]
+		},
+		{
+			"id": 15,
+			"type": "stat",
+			"title": "30d SLI Availability",
+			"description": "Service level indicator's value over the last 30d",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 5, "x": 19, "y": 32 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [{ "color": "red", "value": null }]
+					},
+					"unit": "percentunit",
+					"min": 0,
+					"max": 1
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(avg by(app) (sli_window{app=\"node-exporter\", category=\"availability\"}), 1)",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "threshold",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
+				}
+			]
+		},
+		{
+			"id": 16,
+			"type": "timeseries",
+			"title": "SLI",
+			"description": "Service level indicator",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 19, "x": 0, "y": 37 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"custom": {
+						"drawStyle": "line",
+						"lineWidth": 2,
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"axisSoftMax": 0.05,
+						"lineInterpolation": "linear",
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": { "group": "A", "mode": "none" },
+						"thresholdsStyle": { "mode": "off" }
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "red", "value": null }
+						]
+					},
+					"unit": "percentunit",
+					"max": 1
+				},
+				"overrides": []
+			},
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": { "mode": "single", "sort": "none" }
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(avg by(app) (avg_over_time(sli_5m{app=\"node-exporter\", category=\"performance\"}[$__interval:])), 1)",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "threshold",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
+				}
+			]
+		},
+		{
+			"id": 17,
+			"type": "stat",
+			"title": "30d SLI Performance",
+			"description": "Service level indicator's value over the last 30d",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 5, "x": 19, "y": 37 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [{ "color": "red", "value": null }]
+					},
+					"unit": "percentunit",
+					"min": 0,
+					"max": 1
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(avg by(app) (sli_window{app=\"node-exporter\", category=\"performance\"}), 1)",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "threshold",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
+				}
+			]
+		},
+		{
+			"id": 18,
+			"type": "timeseries",
+			"title": "SLI",
+			"description": "Service level indicator",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 19, "x": 0, "y": 42 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"custom": {
+						"drawStyle": "line",
+						"lineWidth": 2,
+						"fillOpacity": 0,
+						"gradientMode": "scheme",
+						"axisSoftMax": 0.05,
+						"lineInterpolation": "linear",
+						"showPoints": "auto",
+						"spanNulls": false,
+						"stacking": { "group": "A", "mode": "none" },
+						"thresholdsStyle": { "mode": "off" }
+					},
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [
+							{ "color": "red", "value": null }
+						]
+					},
+					"unit": "percentunit",
+					"max": 1
+				},
+				"overrides": []
+			},
+			"options": {
+				"legend": {
+					"displayMode": "list",
+					"placement": "bottom",
+					"showLegend": false
+				},
+				"tooltip": { "mode": "single", "sort": "none" }
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(avg by(app) (avg_over_time(sli_5m{app=\"node-exporter\", category=\"capacity\"}[$__interval:])), 1)",
+					"instant": false,
+					"range": true,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "threshold",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
+				}
+			]
+		},
+		{
+			"id": 19,
+			"type": "stat",
+			"title": "30d SLI Capacity",
+			"description": "Service level indicator's value over the last 30d",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 7, "w": 5, "x": 19, "y": 42 },
+			"fieldConfig": {
+				"defaults": {
+					"color": { "mode": "thresholds" },
+					"decimals": 3,
+					"noValue": "No data",
+					"thresholds": {
+						"mode": "absolute",
+						"steps": [{ "color": "red", "value": null }]
+					},
+					"unit": "percentunit",
+					"min": 0,
+					"max": 1
+				},
+				"overrides": []
+			},
+			"options": {
+				"colorMode": "value",
+				"graphMode": "area",
+				"justifyMode": "auto",
+				"orientation": "auto",
+				"reduceOptions": {
+					"calcs": ["lastNotNull"],
+					"fields": "",
+					"values": false
+				},
+				"textMode": "auto",
+				"wideLayout": true
+			},
+			"targets": [
+				{
+					"refId": "recorded_data",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "clamp_max(avg by(app) (sli_window{app=\"node-exporter\", category=\"capacity\"}), 1)",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				},
+				{
+					"refId": "threshold",
+					"datasource": { "type": "prometheus", "uid": "prometheus" },
+					"expr": "sli_objective{app=\"node-exporter\"}",
+					"instant": true,
+					"range": false,
+					"legendFormat": "__auto"
+				}
+			],
+			"transformations": [
+				{
+					"id": "configFromData",
+					"options": {
+						"configRefId": "threshold",
+						"mappings": [
+							{
+								"fieldName": "{__name__=\"sli_objective\", app=\"node-exporter\"}",
+								"handlerKey": "threshold1",
+								"handlerArguments": { "threshold": { "color": "green" } }
+							}
+						],
+						"applyTo": { "id": "byType", "options": "number" }
+					}
+				}
+			]
 		}
 	],
 	"folderUid": "slo",

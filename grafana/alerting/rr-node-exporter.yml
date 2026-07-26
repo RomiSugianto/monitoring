@@ -372,6 +372,87 @@ groups:
           metric: sli_window
           from: A
           targetDatasourceUid: prometheus
+      - uid: sli_ne_node_network_5m
+        title: sli_node_network_5m
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                avg_over_time(
+                  (
+                    sum(
+                      (
+                        (
+                          sum by(instance) (rate(node_network_receive_errs_total{device=~"eth.*"}[5m]))
+                          + sum by(instance) (rate(node_network_transmit_errs_total{device=~"eth.*"}[5m]))
+                        )
+                        /
+                        (
+                          sum by(instance) (rate(node_network_receive_packets_total{device=~"eth.*"}[5m]))
+                          + sum by(instance) (rate(node_network_transmit_packets_total{device=~"eth.*"}[5m]))
+                        )
+                      ) < bool 0.01
+                    )
+                    /
+                    count(
+                      sum by(instance) (rate(node_network_receive_packets_total{device=~"eth.*"}[5m]))
+                    )
+                  )[5m:1m]
+                )
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: node_network
+          category: availability
+          app: node-exporter
+        isPaused: false
+        record:
+          metric: sli_5m
+          from: A
+          targetDatasourceUid: prometheus
+      - uid: sli_ne_node_network_window
+        title: sli_node_network_window
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              datasource:
+                dstype: prometheus
+                uid: prometheus
+              expr: |
+                sum (sum_over_time((sli_5m{app="node-exporter", sli="node_network"} < +Inf)[30d:5m])) 
+                / 
+                sum (count_over_time((sli_5m{app="node-exporter", sli="node_network"} < +Inf)[30d:5m]))
+              instant: true
+              intervalMs: 1000
+              legendFormat: __auto
+              maxDataPoints: 43200
+              range: false
+              refId: A
+        labels:
+          sli: node_network
+          category: availability
+          app: node-exporter
+          window: 30d
+        isPaused: false
+        record:
+          metric: sli_window
+          from: A
+          targetDatasourceUid: prometheus
           
       - uid: sli_ne_info
         title: sli_info
