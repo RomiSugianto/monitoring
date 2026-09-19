@@ -1,0 +1,4 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/metricwriter/.venv/bin/python",
+  "python.terminal.activateEnvironment": true
+}

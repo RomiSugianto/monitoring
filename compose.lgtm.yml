@@ -1,0 +1,90 @@
+name: monitoring_stack
+services:
+    loki:
+        image: grafana/loki:3.7
+        container_name: loki
+        ports:
+            - "3100:3100"
+        volumes:
+            - ./configs/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+            - lokidata:/loki
+        command:
+            - "-config.file=/etc/loki/loki-config.yml"
+            - "-config.expand-env=true"
+        mem_limit: 256m
+        cpus: 0.5
+        restart: unless-stopped
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "--no-verbose",
+                    "--tries=1",
+                    "--spider",
+                    "http://localhost:3100/ready",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    tempo:
+        image: grafana/tempo:latest
+        container_name: tempo
+        ports:
+            - "3200:3200"
+        volumes:
+            - ./configs/tempo/tempo-config.yml:/etc/tempo/tempo-config.yml:ro
+        command:
+            - "-config.file=/etc/tempo/tempo-config.yml"
+            - "-config.expand-env=true"
+        mem_limit: 256m
+        cpus: 0.5
+        restart: unless-stopped
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "--no-verbose",
+                    "--tries=1",
+                    "--spider",
+                    "http://localhost:3200/ready",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    mimir:
+        image: grafana/mimir:latest
+        container_name: mimir
+        command: ["-config.file=/etc/mimir/mimir.yml"]
+        mem_limit: 256m
+        cpus: 0.5
+        ports:
+            - "9009:9009"
+        volumes:
+            - ./configs/mimir/mimir.yml:/etc/mimir/mimir.yml
+            - mimirdata:/data
+
+    alloy:
+        image: grafana/alloy:latest
+        container_name: alloy
+        volumes:
+            - ./configs/alloy/config.alloy:/etc/alloy/config.alloy:ro
+            - ./logs:/var/log/logwriter:ro
+        environment:
+            - PROMETHEUS_ENABLE_FEATURE=true
+        command:
+            - run
+            - /etc/alloy/config.alloy
+            - --server.http.listen-addr=0.0.0.0:12345
+        mem_limit: 64m
+        cpus: 0.1
+        ports:
+            - "12345:12345"
+        restart: unless-stopped
+
+volumes:
+    lokidata:
+    mimirdata:

@@ -1,0 +1,91 @@
+name: monitoring_stack
+services:
+    elasticsearch:
+        image: elasticsearch/elasticsearch:9.4.2
+        container_name: elasticsearch
+        environment:
+            - discovery.type=single-node
+            - xpack.security.enabled=false
+            - xpack.security.transport.ssl.enabled=false
+            - ES_JAVA_OPTS=-Xms512m -Xmx512m
+        ports:
+            - "9200:9200"
+            - "9300:9300"
+        volumes:
+            - esdata:/usr/share/elasticsearch/data
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        mem_limit: 1g
+        cpus: 1.0
+        restart: unless-stopped
+
+    kibana:
+        image: kibana/kibana:9.4.2
+        container_name: kibana
+        environment:
+            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+        volumes:
+            - ./configs/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+        ports:
+            - "5601:5601"
+        depends_on:
+            elasticsearch:
+                condition: service_healthy
+        mem_limit: 256m
+        cpus: 0.5
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:5601/api/status"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    filebeat:
+        image: elastic/filebeat:9.4.2
+        container_name: filebeat
+        user: root
+        command: filebeat -e -strict.perms=false
+        volumes:
+            - ./configs/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+            - ./logs:/usr/share/filebeat/logs:ro
+            - /var/lib/docker/containers:/var/lib/docker/containers:ro
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+        depends_on:
+            elasticsearch:
+                condition: service_healthy
+            kibana:
+                condition: service_healthy
+        mem_limit: 256m
+        cpus: 0.5
+        restart: unless-stopped
+
+    logstash:
+        image: logstash:9.4.2
+        container_name: logstash
+        command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+        volumes:
+            - ./configs/logstash/pipeline/:/usr/share/logstash/pipeline/:ro
+            - ./configs/logstash/config/:/usr/share/logstash/config/:ro
+        depends_on:
+            elasticsearch:
+                condition: service_healthy
+        mem_limit: 512m
+        cpus: 1.0
+        restart: unless-stopped
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "curl",
+                    "-f",
+                    "http://localhost:9600/_node/pipelines?pretty",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    esdata:

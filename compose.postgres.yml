@@ -1,0 +1,49 @@
+name: monitoring_stack
+services:
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: postgres
+        environment:
+            - POSTGRES_USER=${POSTGRES_USER:-postgres}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+            - POSTGRES_DB=${POSTGRES_DB:-monitoring}
+            - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --locale=en_US.UTF-8
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgresdata:/var/lib/postgresql/data
+            - ./configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+            - ./configs/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+            - ./configs/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+        command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+        mem_limit: 256m
+        cpus: 0.5
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-postgres}", "-d", "${POSTGRES_DB:-monitoring}"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    postgres-exporter:
+        image: postgres_exporter:latest
+        container_name: postgres-exporter
+        environment:
+            - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-monitoring}?sslmode=disable
+        ports:
+            - "9187:9187"
+        depends_on:
+            postgres:
+                condition: service_healthy
+        mem_limit: 128m
+        cpus: 0.5
+        restart: unless-stopped
+        healthcheck:
+            test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9187/metrics"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+volumes:
+    postgresdata:

@@ -1,0 +1,23 @@
+name: monitoring_stack
+services:
+    logwriter:
+        image: alpine:latest
+        container_name: logwriter
+        volumes:
+            - ./logwriter/logwriter.sh:/logwriter.sh
+            - ./logs:/var/log/logwriter
+        command: sh -c 'chmod +x /logwriter.sh; /logwriter.sh'
+        mem_limit: 32m
+        cpus: 0.1
+        restart: unless-stopped
+
+    metricwriter:
+        build:
+            context: ./services/metricwriter
+            dockerfile: Dockerfile
+        image: metricwriter:latest
+        container_name: metricwriter
+        restart: unless-stopped
+        environment:
+            - PROMETHEUS_REMOTE_WRITE_URL=http://prometheus:9090/api/v1/write
+            - POSTGRES_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-monitoring}?sslmode=disable

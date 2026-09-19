@@ -4,12 +4,13 @@ Simulate sli:services_status_code:total:1m gauge metric
 Mimics ES recording rule behavior → pushes to Grafana Cloud
 pip install requests python-snappy
 """
+import os
+import random
 import struct
 import time
-import random
+
 import requests
 import snappy
-import os
 
 # Load .env automatically for local/dev runs if python-dotenv is installed.
 # In production/CI you should inject env vars directly and the script will still work.
