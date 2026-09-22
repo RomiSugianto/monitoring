@@ -20,10 +20,11 @@ services:
             - GF_RECORDING_RULES_ENABLED=true
             - GF_UNIFIED_ALERTING_ENABLED=true
             - GF_UNIFIED_ALERTING_EXECUTE_ALERTS=true
-            - GF_UNIFIED_ALERTING_REMOTE_WRITE_UR=http://prometheus:9090/api/v1/write
-            - GF_UNIFIED_ALERTING_STATE_HISTORY_BACKEND=prometheus
-            - GF_UNIFIED_ALERTING_STATE_HISTORY_PROMETHEUS_WRITE_URL=http://prometheus:9090/api/v1/write
-            - GF_UNIFIED_ALERTING_STATE_HISTORY_PROMETHEUS_TARGET_DATA_SOURCE_UID=prometheus
+            - GF_UNIFIED_ALERTING_REMOTE_WRITE_URL=http://prometheus:9090/api/v1/write
+            - GF_INSTALL_PLUGINS=grafana-assistant-app
+            # - GF_UNIFIED_ALERTING_STATE_HISTORY_BACKEND=prometheus
+            # - GF_UNIFIED_ALERTING_STATE_HISTORY_PROMETHEUS_WRITE_URL=http://prometheus:9090/api/v1/write
+            # - GF_UNIFIED_ALERTING_STATE_HISTORY_PROMETHEUS_TARGET_DATA_SOURCE_UID=prometheus
         mem_limit: 256m
         cpus: 0.5
         restart: unless-stopped

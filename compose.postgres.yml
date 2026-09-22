@@ -13,9 +13,9 @@ services:
             - "5432:5432"
         volumes:
             - postgresdata:/var/lib/postgresql/data
-            - ./configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-            - ./configs/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-            - ./configs/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+            # - ./configs/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+            # - ./configs/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+            # - ./configs/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
         command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
         mem_limit: 256m
         cpus: 0.5

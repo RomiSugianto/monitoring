@@ -1,5 +1,6 @@
 name: monitoring_stack
 services:
+
     prometheus:
         image: prom/prometheus:latest
         container_name: prometheus

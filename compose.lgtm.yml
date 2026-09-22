@@ -1,5 +1,6 @@
 name: monitoring_stack
 services:
+
     loki:
         image: grafana/loki:3.7
         container_name: loki
@@ -66,6 +67,20 @@ services:
         volumes:
             - ./configs/mimir/mimir.yml:/etc/mimir/mimir.yml
             - mimirdata:/data
+        restart: unless-stopped
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "--no-verbose",
+                    "--tries=1",
+                    "--spider",
+                    "http://localhost:9009/ready",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
     alloy:
         image: grafana/alloy:latest
@@ -84,6 +99,19 @@ services:
         ports:
             - "12345:12345"
         restart: unless-stopped
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "--no-verbose",
+                    "--tries=1",
+                    "--spider",
+                    "http://localhost:12345/healthz",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
 
 volumes:
     lokidata:
