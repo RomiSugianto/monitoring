@@ -4,7 +4,7 @@ services:
         image: alpine:latest
         container_name: logwriter
         volumes:
-            - ./logwriter/logwriter.sh:/logwriter.sh
+            - ./services/logwriter/logwriter.sh:/logwriter.sh
             - ./logs:/var/log/logwriter
         command: sh -c 'chmod +x /logwriter.sh; /logwriter.sh'
         mem_limit: 32m
@@ -21,3 +21,29 @@ services:
         environment:
             - PROMETHEUS_REMOTE_WRITE_URL=http://prometheus:9090/api/v1/write
             - POSTGRES_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-monitoring}?sslmode=disable
+
+    mocktail:
+        build:
+            context: ./services/mocktail
+            dockerfile: Dockerfile
+        container_name: mocktail
+        env_file:
+            - ./services/mocktail/.env
+        environment:
+            - LOKI_URL=http://loki:3100
+        ports:
+            - "9095:9095"
+        restart: unless-stopped
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "wget",
+                    "--no-verbose",
+                    "--tries=1",
+                    "--spider",
+                    "http://localhost:9095/healthz",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5

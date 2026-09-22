@@ -43,3 +43,7 @@ scrape_configs:
         target_label: instance
       - replacement: blackbox-exporter:9115
         target_label: __address__
+
+  - job_name: 'mocktail'
+    static_configs:
+      - targets: ['mocktail:9095']
