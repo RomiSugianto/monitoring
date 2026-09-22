@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocktail - Mock Metrics & Logs Generator</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-elevated: #273449;
+            --border: #334159;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3a5;
+            --text-tertiary: #64748b;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --success: #4ade80;
+            --success-hover: #22c55e;
+            --danger: #f87171;
+            --danger-hover: #ef4444;
+            --warning: #fbbf24;
+            --info: #60a5fa;
+            --border-radius: 12px;
+            --transition: all 0.2s ease;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: var(--space-lg); padding-bottom: 16px; border-bottom: 1px solid var(--border);
+        }
+        .header h1 { font-size: 1.75rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 12px; }
+        .header h1 .badge { font-size: 0.75rem; background: var(--surface-elevated); color: var(--text-secondary); padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+        .health-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--success); margin-right: 6px; }
+        .health-dot.offline { background: var(--danger); }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--border-radius); padding: 24px; margin-bottom: 20px; }
+        .card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .card h2 .icon { font-size: 1.15rem; }
+
+        .toggles { display: flex; gap: var(--space-lg); flex-wrap: wrap; }
+        .toggle { display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; padding: 8px 4px; }
+        .toggle-switch { position: relative; display: inline-block; width: 56px; height: 30px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #475569; border-radius: 30px; transition: .3s; }
+        .slider:before { content: ""; position: absolute; height: 22px; width: 22px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: .3s; }
+        input:checked + .slider { background: var(--accent); }
+        input:checked + .slider:before { transform: translateX(26px); }
+        .toggle-label { font-size: 0.95rem; color: var(--text-secondary); }
+        .toggle-label.on { color: var(--success); font-weight: 500; }
+        .toggle-label.off { color: var(--text-tertiary); }
+
+        .btn { display: inline-flex; align-items: center; gap: 6px; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 500; transition: var(--transition); }
+        .btn-primary { background: var(--accent); color: #0f172a; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: #0f172a; }
+        .btn-success:hover { background: var(--success-hover); transform: translateY(-1px); }
+        .btn-danger { background: var(--danger); color: #0f172a; }
+        .btn-danger:hover { background: var(--danger-hover); transform: translateY(-1px); }
+        .btn-secondary { background: var(--surface-elevated); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--border); }
+        .btn-sm { padding: 6px 14px; font-size: 0.85rem; }
+
+        .form-group { margin-bottom: var(--space-md); }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+        .form-row { display: flex; gap: var(--space-md); flex-wrap: wrap; }
+        .form-row > .form-group { flex: 1; min-width: 140px; margin-bottom: 0; }
+        input, select, textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: var(--transition); width: 100%; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); background: var(--surface); }
+        .radio-group { display: flex; gap: 20px; margin-top: 4px; }
+        .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .radio-option input[type="radio"] { width: auto; height: auto; margin: 0; cursor: pointer; }
+        .radio-option span { font-size: 0.9rem; color: var(--text-primary); }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        th { color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.03em; }
+        tr.log-entry:hover { background: var(--surface-elevated); }
+        .status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .status-badge.success { background: rgba(74,222,128,0.15); color: var(--success); }
+        .status-badge.failed { background: rgba(248,113,113,0.15); color: var(--danger); }
+        .status-badge.warning { background: rgba(251,191,36,0.15); color: var(--warning); }
+        .level-badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
+        .level-badge.info { background: rgba(96,165,250,0.15); color: var(--info); }
+        .level-badge.error { background: rgba(248,113,113,0.15); color: var(--danger); }
+        .level-badge.warning { background: rgba(251,191,36,0.15); color: var(--warning); }
+        .empty-state { text-align: center; padding: 48px; color: var(--text-tertiary); }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: var(--space-md); }
+        .metric-card { position: relative; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 16px; transition: var(--transition); }
+        .metric-card:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 4px 20px rgba(56,189,248,0.08); }
+        .metric-name { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .metric-value { font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+        .metric-labels { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 6px; font-family: monospace; }
+        .metric-meta { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 8px; }
+        .metric-actions { position: absolute; top: 8px; right: 8px; opacity: 0; transition: opacity .2s; }
+        .metric-card:hover .metric-actions { opacity: 1; }
+        .metric-actions .btn-sm { padding: 2px 8px; }
+
+        .label-editor { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .label-editor input { flex: 1; min-width: 80px; }
+        .label-editor .btn-remove { width: 28px; height: 32px; padding: 4px; min-width: auto; }
+
+        .toast { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.3); backdrop-filter: blur(8px); animation: slide-in .3s ease-out; z-index: 1000; }
+        @keyframes slide-in { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+
+        .section { animation: fade-in .3s ease-out; }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+        .badge-info { background: rgba(56,189,248,0.15); color: var(--accent); }
+        .badge-success { background: rgba(74,222,128,0.15); color: var(--success); }
+        .badge-warning { background: rgba(251,191,36,0.15); color: var(--warning); }
+
+        .toggle-pill { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+        .toggle-pill.active { background: rgba(56,189,248,0.15); color: var(--accent); }
+        .toggle-pill.inactive { background: rgba(248,113,113,0.15); color: var(--danger); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <span class="health-dot" id="health-dot"></span>
+            <h1>Mocktail <span class="badge">v1.0</span></h1>
+        </div>
+    </div>
+
+    <!-- Toggle Section -->
+    <div class="card section">
+        <h2><span class="icon">&#9881;</span> Service Toggles</h2>
+        <div class="toggles">
+            <div class="toggle" onclick="toggleSetting('prometheus_broadcast')">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="prometheus_broadcast" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label on" id="label_prometheus_broadcast">Broadcast to Prometheus</span>
+            </div>
+            <div class="toggle" onclick="toggleSetting('loki_send')">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="loki_send" checked>
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label on" id="label_loki_send">Send to Loki</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Generator Section -->
+    <div class="card section">
+        <h2><span class="icon">&#128172;</span> Generate Log</h2>
+        <form id="log-form" onsubmit="generateLog(); return false;">
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <label>Status</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="status" value="success" checked>
+                            <span>Success (200)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="status" value="failed">
+                            <span>Failed (500)</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="level">Log Level</label>
+                    <select id="level">
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="error">Error</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status_code">Status Code</label>
+                    <input type="number" id="status_code" value="200" min="100" max="599">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <input type="text" id="message" placeholder="Enter log message..." value="Request processed">
+            </div>
+            <button type="submit" class="btn btn-success">Generate Log</button>
+        </form>
+    </div>
+
+    <!-- Custom Metrics Section -->
+    <div class="card section">
+        <h2><span class="icon">&#128202;</span> Custom Metrics</h2>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="metric_name">Metric Name</label>
+                <input type="text" id="metric_name" placeholder="e.g., node_cpu_seconds">
+            </div>
+            <div class="form-group">
+                <label for="metric_value">Initial Value</label>
+                <input type="number" id="metric_value" step="0.01" value="0">
+            </div>
+            <div class="form-group">
+                <label for="metric_type">Type</label>
+                <select id="metric_type" onchange="toggleMetricFields()">
+                    <option value="gauge">Gauge</option>
+                    <option value="counter">Counter</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Gauge-specific fields (min/max for randomization) -->
+        <div id="gauge_fields" style="display: block;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Min Value</label>
+                    <input type="number" id="metric_min" step="0.01" value="0" placeholder="e.g., 0">
+                </div>
+                <div class="form-group">
+                    <label>Max Value</label>
+                    <input type="number" id="metric_max" step="0.01" value="100" placeholder="e.g., 100">
+                </div>
+            </div>
+            <p style="color: var(--text-tertiary); font-size: 0.82rem; margin-top: -8px; margin-bottom: 12px;">
+                When min ≠ max, the gauge value will randomize between them on the interval below.
+            </p>
+        </div>
+
+        <!-- Counter-specific fields (increment + interval) -->
+        <div id="counter_fields" style="display: none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Increment</label>
+                    <input type="number" id="metric_increment" step="0.01" value="1" placeholder="e.g., 1">
+                </div>
+                <div class="form-group">
+                    <label for="metric_interval">Interval (seconds)</label>
+                    <input type="number" id="metric_interval" value="10" min="1" placeholder="e.g., 10">
+                </div>
+            </div>
+            <p style="color: var(--text-tertiary); font-size: 0.82rem; margin-top: -8px; margin-bottom: 12px;">
+                The counter will increment by the specified amount every N seconds.
+            </p>
+        </div>
+
+        <!-- Labels Editor -->
+        <div class="form-group">
+            <label>Labels</label>
+            <div class="form-row" style="margin-bottom: 8px;">
+                <input type="text" id="label_key_0" placeholder="key" style="max-width: 120px; min-width: 100px;">
+                <input type="text" id="label_val_0" placeholder="value" style="max-width: 150px;">
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="addLabelRow()" style="margin-bottom: 8px;">Add Label</button>
+            <div id="label_rows"></div>
+        </div>
+
+        <div class="form-group" style="margin-top: 8px;">
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <button class="btn btn-primary" onclick="addMetric()" type="button">Add Metric</button>
+                <label class="radio-option">
+                    <input type="checkbox" id="auto_start" checked>
+                    <span>Auto-start updating</span>
+                </label>
+            </div>
+        </div>
+
+        <div id="custom_metrics_display" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- Recent Logs Section -->
+    <div class="card section">
+        <h2><span class="icon">&#128232;</span> Recent Logs <span class="badge badge-info" id="log_count_badge"></span></h2>
+        <div id="logs_table_container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th>Code</th>
+                        <th>Message</th>
+                        <th>Service</th>
+                    </tr>
+                </thead>
+                <tbody id="logs_table_body">
+                    <tr><td colspan="6" class="empty-state">No logs generated yet. Use the generator above.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+let labelRowCount = 0;
+
+function toggleMetricFields() {
+    const type = document.getElementById('metric_type').value;
+    document.getElementById('gauge_fields').style.display = type === 'gauge' ? 'block' : 'none';
+    document.getElementById('counter_fields').style.display = type === 'counter' ? 'block' : 'none';
+}
+
+function toggleSetting(name) {
+    const checkbox = document.getElementById(name);
+    const value = checkbox.checked;
+    fetch('/api/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, value: value })
+    }).then(r => r.json()).then(data => {
+        showToast(data.message);
+        updateToggleLabels();
+    }).catch(err => showToast('Error: ' + err.message));
+}
+
+function updateToggleLabels() {
+    const pb = document.getElementById('prometheus_broadcast');
+    const ls = document.getElementById('loki_send');
+    const pbLabel = document.getElementById('label_prometheus_broadcast');
+    const lsLabel = document.getElementById('label_loki_send');
+
+    if (pb.checked) {
+        pbLabel.classList.add('on'); pbLabel.classList.remove('off');
+        pbLabel.textContent = 'Broadcast to Prometheus';
+    } else {
+        pbLabel.classList.add('off'); pbLabel.classList.remove('on');
+        pbLabel.textContent = 'Broadcast to Prometheus (disabled)';
+    }
+
+    if (ls.checked) {
+        lsLabel.classList.add('on'); lsLabel.classList.remove('off');
+        lsLabel.textContent = 'Send to Loki';
+    } else {
+        lsLabel.classList.add('off'); lsLabel.classList.remove('on');
+        lsLabel.textContent = 'Send to Loki (disabled)';
+    }
+}
+
+function generateLog() {
+    const status = document.querySelector('input[name="status"]:checked').value;
+    const level = document.getElementById('level').value;
+    const message = document.getElementById('message').value || 'Request processed';
+    const statusCode = parseInt(document.getElementById('status_code').value) || (status === 'success' ? 200 : 500);
+
+    fetch('/api/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            status: status,
+            level: level,
+            message: message,
+            status_code: statusCode
+        })
+    }).then(r => r.json()).then(data => {
+        showToast(`Log generated: broadcast=${data.broadcast}, loki=${data.loki}`);
+        refreshLogs();
+    }).catch(err => showToast('Error: ' + err.message));
+}
+
+function addLabelRow() {
+    const container = document.getElementById('label_rows');
+    const row = document.createElement('div');
+    row.className = 'label-editor';
+    labelRowCount++;
+    row.innerHTML = `
+        <input type="text" class="label-key" placeholder="key">
+        <input type="text" class="label-val" placeholder="value">
+        <button class="btn btn-secondary btn-sm" onclick="removeLabelRow(this)">×</button>
+    `;
+    container.appendChild(row);
+}
+
+function removeLabelRow(btn) {
+    btn.parentElement.remove();
+}
+
+function addMetric() {
+    const name = document.getElementById('metric_name').value;
+    if (!name) { showToast('Metric name required'); return; }
+
+    const value = parseFloat(document.getElementById('metric_value').value) || 0;
+    const type = document.getElementById('metric_type').value;
+    const min = parseFloat(document.getElementById('metric_min').value) || 0;
+    const max = parseFloat(document.getElementById('metric_max').value) || 100;
+    const increment = type === 'counter' ? (parseFloat(document.getElementById('metric_increment').value) || 1) : 0;
+    const interval = type === 'counter' ? (parseInt(document.getElementById('metric_interval').value) || 10) : (parseInt(document.getElementById('metric_interval').value) || 10);
+    const autoStart = document.getElementById('auto_start').checked;
+
+    // Collect labels from first two inputs
+    const labels = {};
+    const key0 = document.getElementById('label_key_0')?.value;
+    const val0 = document.getElementById('label_val_0')?.value;
+    if (key0 && val0) labels[key0] = val0;
+
+    document.querySelectorAll('#label_rows .label-editor').forEach(row => {
+        const key = row.querySelector('.label-key')?.value;
+        const val = row.querySelector('.label-val')?.value;
+        if (key && val) labels[key] = val;
+    });
+
+    fetch('/api/metrics/custom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            name: name,
+            labels: labels,
+            value: value,
+            type: type,
+            min_value: min,
+            max_value: max,
+            increment: increment,
+            interval_sec: interval,
+            active: autoStart
+        })
+    }).then(r => r.json()).then(data => {
+        showToast(`Metric '${name}' ${data.metric ? 'added' : 'updated'}`);
+        refreshMetrics();
+        clearMetricForm();
+    }).catch(err => showToast('Error: ' + err.message));
+}
+
+function clearMetricForm() {
+    document.getElementById('metric_name').value = '';
+    document.getElementById('metric_value').value = '0';
+    document.getElementById('metric_type').value = 'gauge';
+    document.getElementById('metric_min').value = '0';
+    document.getElementById('metric_max').value = '100';
+    document.getElementById('metric_increment').value = '1';
+    document.getElementById('metric_interval').value = '10';
+    document.getElementById('auto_start').checked = true;
+    document.getElementById('label_key_0').value = '';
+    document.getElementById('label_val_0').value = '';
+    document.getElementById('label_rows').innerHTML = '';
+    toggleMetricFields();
+}
+
+function editMetric(metric) {
+    // Populate form with metric values for editing
+    document.getElementById('metric_name').value = metric.name;
+    document.getElementById('metric_value').value = metric.value;
+    document.getElementById('metric_type').value = metric.type || metric.valueType || 'gauge';
+    document.getElementById('metric_min').value = metric.min_value || 0;
+    document.getElementById('metric_max').value = metric.max_value || 100;
+    document.getElementById('metric_increment').value = metric.increment || 1;
+    document.getElementById('metric_interval').value = metric.interval_sec || 10;
+    document.getElementById('auto_start').checked = metric.active;
+    toggleMetricFields();
+}
+
+function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatTime(ts) {
+    if (!ts) return '-';
+    return new Date(ts).toLocaleString();
+}
+
+function refreshLogs() {
+    fetch('/api/state').then(r => r.json()).then(data => {
+        renderLogs(data.log_history);
+        document.getElementById('log_count_badge').textContent = data.log_history.length + ' logs';
+    });
+}
+
+function refreshMetrics() {
+    fetch('/api/state').then(r => r.json()).then(data => {
+        renderCustomMetrics(data.custom_metrics);
+    });
+}
+
+function renderLogs(logs) {
+    const tbody = document.getElementById('logs_table_body');
+    if (!logs || logs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No logs generated yet. Use the generator above.</td></tr>';
+        return;
+    }
+    let html = '';
+    logs.slice(0, 50).forEach(log => {
+        const statusClass = log.status === 'success' ? 'success' : log.status === 'failed' ? 'failed' : 'warning';
+        const levelClass = log.level === 'error' ? 'error' : log.level === 'warning' ? 'warning' : 'info';
+        html += `<tr class="log-entry">
+            <td style="color: var(--text-tertiary); font-size: 0.82rem;">${formatTime(log.timestamp)}</td>
+            <td><span class="level-badge ${levelClass}">${escapeHtml(log.level)}</span></td>
+            <td><span class="status-badge ${statusClass}">${escapeHtml(log.status)}</span></td>
+            <td>${log.status_code}</td>
+            <td>${escapeHtml(log.message)}</td>
+            <td style="color: var(--text-secondary);">${escapeHtml(log.service)}</td>
+        </tr>`;
+    });
+    tbody.innerHTML = html;
+}
+
+function renderCustomMetrics(metrics) {
+    const container = document.getElementById('custom_metrics_display');
+    if (!metrics || metrics.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-tertiary); margin-top: 12px;">No custom metrics defined yet.</p>';
+        return;
+    }
+    let html = '<div class="metrics-grid">';
+    metrics.forEach(m => {
+        const labelsStr = m.labels ? Object.entries(m.labels).map(([k, v]) => `${k}="${v}"`).join(', ') : '';
+        const typeLabel = m.type === 'counter' ? 'counter' : 'gauge';
+        const activePill = m.active ?
+            `<span class="toggle-pill active">Active</span>` :
+            `<span class="toggle-pill inactive">Static</span>`;
+        html += `
+            <div class="metric-card">
+                <div class="metric-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="editMetric(${JSON.stringify(m).replace(/"/g, '&quot;')})">Edit</button>
+                </div>
+                <div class="metric-name">${escapeHtml(m.name)}</div>
+                <div class="metric-value">${m.value}</div>
+                <div class="metric-labels">{${labelsStr}}</div>
+                <div class="metric-meta">
+                    Type: ${typeLabel} • ${m.min_value || 0} to ${m.max_value || 0}
+                    ${activePill}
+                </div>
+            </div>
+        `;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function checkHealth() {
+    fetch('/healthz').then(r => {
+        const dot = document.getElementById('health-dot');
+        if (r.ok) {
+            dot.classList.remove('offline');
+        } else {
+            dot.classList.add('offline');
+        }
+    }).catch(() => {
+        document.getElementById('health-dot').classList.add('offline');
+    });
+}
+
+checkHealth();
+setInterval(refreshLogs, 5000);
+setInterval(refreshMetrics, 5000);
+setInterval(checkHealth, 30000);
+</script>
+</body>
+</html>
