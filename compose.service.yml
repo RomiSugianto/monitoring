@@ -1,5 +1,35 @@
 name: monitoring_stack
 services:
+
+    node-exporter:
+        image: prom/node-exporter:latest
+        container_name: node-exporter
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        command:
+            - "--path.procfs=/host/proc"
+            - "--path.sysfs=/host/sys"
+            - "--path.rootfs=/rootfs"
+            # Exclude unnecessary mounts to keep CPU/RAM usage extremely low
+            - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+        mem_limit: 32m
+        cpus: 0.1
+        ports:
+            - "9100:9100"
+        restart: unless-stopped
+
+    blackbox-exporter:
+        image: prom/blackbox-exporter:latest
+        container_name: blackbox-exporter
+        mem_limit: 32m
+        cpus: 0.1
+        restart: unless-stopped
+        ports:
+            - "9115:9115"
+        volumes:
+            - ./configs/blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
     logwriter:
         image: alpine:latest
         container_name: logwriter
